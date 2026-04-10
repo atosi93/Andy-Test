@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dólar Oficial vs Blue en Argentina (2022–2026)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #1c2333;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-red: #f85149;
+            --accent-orange: #d29922;
+            --accent-purple: #bc8cff;
+            --accent-cyan: #39d2c0;
+            --border: #30363d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        header h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        header p { color: var(--text-secondary); font-size: 0.95rem; }
+
+        .legend-header {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 0.75rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dot-oficial { background: var(--accent-blue); }
+        .dot-blue { background: var(--accent-red); }
+        .dot-brecha { background: var(--accent-orange); }
+
+        .chart-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container h2 {
+            font-size: 1.15rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-left: 0.5rem;
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        .chart-container h2.brecha-title {
+            border-left-color: var(--accent-orange);
+        }
+
+        .chart-wrapper { position: relative; height: 420px; }
+
+        /* Stats Grid — 2 columns for Oficial vs Blue */
+        .stats-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-column h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            padding-left: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stats-column h3 .tag {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tag-oficial { background: rgba(88, 166, 255, 0.15); color: var(--accent-blue); }
+        .tag-blue { background: rgba(248, 81, 73, 0.15); color: var(--accent-red); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-blue);
+        }
+
+        .stat-card.blue-card:hover { border-color: var(--accent-red); }
+
+        .stat-card .year {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-card .value { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.2rem; }
+        .stat-card .change { font-size: 0.85rem; font-weight: 600; }
+        .stat-card .range { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem; }
+
+        .change.up { color: var(--accent-red); }
+        .change.down { color: var(--accent-green); }
+
+        .color-oficial { color: var(--accent-blue); }
+        .color-blue { color: var(--accent-red); }
+
+        /* Brecha highlight cards */
+        .brecha-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .brecha-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .brecha-card .label {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .brecha-card .brecha-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--accent-orange);
+        }
+
+        .brecha-card .brecha-sub {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .table-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        .table-section h2 {
+            font-size: 1.15rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-left: 0.5rem;
+            border-left: 3px solid var(--accent-purple);
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+
+        thead th {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            padding: 0.6rem 0.5rem;
+            text-align: right;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.04em;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+
+        thead th:first-child { text-align: left; border-radius: 6px 0 0 0; }
+        thead th:last-child { border-radius: 0 6px 0 0; }
+
+        thead th.col-oficial { color: var(--accent-blue); }
+        thead th.col-blue { color: var(--accent-red); }
+        thead th.col-brecha { color: var(--accent-orange); }
+
+        tbody td {
+            padding: 0.5rem 0.5rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+            font-variant-numeric: tabular-nums;
+        }
+
+        tbody td:first-child {
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        tbody td.val-blue { color: var(--accent-red); opacity: 0.9; }
+        tbody td.val-brecha { color: var(--accent-orange); font-size: 0.8rem; }
+
+        tbody tr:hover { background: rgba(88, 166, 255, 0.05); }
+        .highlight-row { background: rgba(248, 81, 73, 0.08) !important; }
+
+        .note {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-orange);
+        }
+
+        footer {
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+        }
+
+        footer a { color: var(--accent-blue); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        .events-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .events-section h2 {
+            font-size: 1.15rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-left: 0.5rem;
+            border-left: 3px solid var(--accent-orange);
+        }
+
+        .timeline { position: relative; padding-left: 1.5rem; }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-item { position: relative; margin-bottom: 1.25rem; padding-left: 1rem; }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.55rem; top: 0.5rem;
+            width: 10px; height: 10px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            border: 2px solid var(--bg-card);
+        }
+
+        .timeline-item .date { font-size: 0.8rem; color: var(--accent-blue); font-weight: 600; }
+        .timeline-item .event { font-size: 0.9rem; color: var(--text-primary); }
+        .timeline-item .brecha-note { font-size: 0.82rem; color: var(--accent-orange); margin-top: 0.15rem; }
+
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            header h1 { font-size: 1.5rem; }
+            .stats-comparison { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .chart-wrapper { height: 300px; }
+            .brecha-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Dólar Oficial vs Dólar Blue en Argentina</h1>
+            <p>Comparación de cotizaciones ARS/USD — Período 2022 a abril 2026</p>
+            <div class="legend-header">
+                <div class="legend-item"><span class="legend-dot dot-oficial"></span> Dólar Oficial</div>
+                <div class="legend-item"><span class="legend-dot dot-blue"></span> Dólar Blue</div>
+                <div class="legend-item"><span class="legend-dot dot-brecha"></span> Brecha cambiaria</div>
+            </div>
+        </header>
+
+        <!-- Stats Cards — Side by side -->
+        <div class="stats-comparison">
+            <div class="stats-column">
+                <h3><span class="tag tag-oficial">Oficial</span> Cierre anual</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="year">2022</div>
+                        <div class="value color-oficial">$177</div>
+                        <div class="change up">▲ +72%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="year">2023</div>
+                        <div class="value color-oficial">$808</div>
+                        <div class="change up">▲ +356%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="year">2024</div>
+                        <div class="value color-oficial">$1.031</div>
+                        <div class="change up">▲ +28%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="year">2025</div>
+                        <div class="value color-oficial">$1.451</div>
+                        <div class="change up">▲ +41%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="year">Abr 2026</div>
+                        <div class="value color-oficial">$1.382</div>
+                        <div class="change down">▼ -4.7%</div>
+                    </div>
+                </div>
+            </div>
+            <div class="stats-column">
+                <h3><span class="tag tag-blue">Blue</span> Cierre anual</h3>
+                <div class="stats-grid">
+                    <div class="stat-card blue-card">
+                        <div class="year">2022</div>
+                        <div class="value color-blue">$342</div>
+                        <div class="change up">▲ +63%</div>
+                    </div>
+                    <div class="stat-card blue-card">
+                        <div class="year">2023</div>
+                        <div class="value color-blue">$975</div>
+                        <div class="change up">▲ +185%</div>
+                    </div>
+                    <div class="stat-card blue-card">
+                        <div class="year">2024</div>
+                        <div class="value color-blue">$1.195</div>
+                        <div class="change up">▲ +23%</div>
+                    </div>
+                    <div class="stat-card blue-card">
+                        <div class="year">2025</div>
+                        <div class="value color-blue">$1.510</div>
+                        <div class="change up">▲ +26%</div>
+                    </div>
+                    <div class="stat-card blue-card">
+                        <div class="year">Abr 2026</div>
+                        <div class="value color-blue">$1.385</div>
+                        <div class="change down">▼ -8.3%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Brecha Cards -->
+        <div class="brecha-grid">
+            <div class="brecha-card">
+                <div class="label">Brecha Dic 2022</div>
+                <div class="brecha-value">93%</div>
+                <div class="brecha-sub">Oficial $177 · Blue $342</div>
+            </div>
+            <div class="brecha-card">
+                <div class="label">Brecha Dic 2023</div>
+                <div class="brecha-value">21%</div>
+                <div class="brecha-sub">Oficial $808 · Blue $975</div>
+            </div>
+            <div class="brecha-card">
+                <div class="label">Brecha Dic 2024</div>
+                <div class="brecha-value">16%</div>
+                <div class="brecha-sub">Oficial $1.031 · Blue $1.195</div>
+            </div>
+            <div class="brecha-card">
+                <div class="label">Brecha Dic 2025</div>
+                <div class="brecha-value">4%</div>
+                <div class="brecha-sub">Oficial $1.451 · Blue $1.510</div>
+            </div>
+            <div class="brecha-card">
+                <div class="label">Brecha Abr 2026</div>
+                <div class="brecha-value">0.2%</div>
+                <div class="brecha-sub">Oficial $1.382 · Blue $1.385</div>
+            </div>
+        </div>
+
+        <!-- Main Chart: Oficial vs Blue -->
+        <div class="chart-container">
+            <h2>Evolución mensual — Dólar Oficial vs Dólar Blue</h2>
+            <div class="chart-wrapper">
+                <canvas id="mainChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Brecha Chart -->
+        <div class="chart-container">
+            <h2 class="brecha-title">Evolución de la brecha cambiaria (%)</h2>
+            <div class="chart-wrapper" style="height: 320px;">
+                <canvas id="brechaChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Bar chart — Year over year -->
+        <div class="chart-container">
+            <h2>Variación interanual — Oficial vs Blue</h2>
+            <div class="chart-wrapper" style="height: 320px;">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-section">
+            <h2>Detalle mensual — Oficial, Blue y Brecha (valores aproximados de cierre)</h2>
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Mes</th>
+                        <th class="col-oficial">Oficial 2022</th>
+                        <th class="col-blue">Blue 2022</th>
+                        <th class="col-brecha">Brecha</th>
+                        <th class="col-oficial">Oficial 2023</th>
+                        <th class="col-blue">Blue 2023</th>
+                        <th class="col-brecha">Brecha</th>
+                        <th class="col-oficial">Oficial 2024</th>
+                        <th class="col-blue">Blue 2024</th>
+                        <th class="col-brecha">Brecha</th>
+                        <th class="col-oficial">Oficial 2025</th>
+                        <th class="col-blue">Blue 2025</th>
+                        <th class="col-brecha">Brecha</th>
+                        <th class="col-oficial">Oficial 2026</th>
+                        <th class="col-blue">Blue 2026</th>
+                        <th class="col-brecha">Brecha</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div class="note">
+                ⚠️ Valores aproximados de cierre mensual. Fuentes: BCRA, Ámbito, DolarHistorico.com, AhoraDolar, EconArgy.
+                La brecha se calcula como ((Blue − Oficial) / Oficial) × 100. Los datos de 2026 son parciales (hasta abril).
+                Agosto 2023: salto post-PASO. Diciembre 2023: devaluación del 118% post-asunción Milei.
+            </div>
+        </div>
+
+        <!-- Key Events -->
+        <div class="events-section">
+            <h2>Eventos clave y su impacto en la brecha</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="date">2022 — Cepo estricto y brecha alta</div>
+                    <div class="event">Crawling peg oficial ($103→$177) mientras el blue alcanzaba $342. El cepo cambiario mantuvo una brecha sostenida del 80-100%.</div>
+                    <div class="brecha-note">📐 Brecha promedio: ~90%</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="date">Agosto 2023 — Elecciones PASO</div>
+                    <div class="event">Victoria de Milei disparó el blue a $725. El oficial saltó a $350 por intervención del BCRA. La brecha se amplió fuertemente.</div>
+                    <div class="brecha-note">📐 Brecha en agosto: ~107%</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="date">Diciembre 2023 — Devaluación Milei</div>
+                    <div class="event">Devaluación oficial del 118% ($365→$808). El blue cerró en $975. La brecha se comprimió drásticamente al 21%.</div>
+                    <div class="brecha-note">📐 Brecha pre-devaluación: ~170% → Post: 21%</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="date">2024 — Crawling peg y volatilidad blue</div>
+                    <div class="event">Oficial subió gradualmente ($816→$1.031). El blue osciló entre $980 y $1.340, con picos en julio ($1.340) y cierre en $1.195.</div>
+                    <div class="brecha-note">📐 Brecha promedio: ~25%. Pico: 46% (julio)</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="date">2025 — Convergencia progresiva</div>
+                    <div class="event">Ambas cotizaciones subieron, pero la brecha se comprimió constantemente. El blue se mantuvo cerca del oficial durante todo el año.</div>
+                    <div class="brecha-note">📐 Brecha cierre: 4%</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="date">Abril 2026 — Brecha casi inexistente</div>
+                    <div class="event">Oficial: $1.382, Blue: $1.385. La brecha cayó a prácticamente 0%, reflejando menor presión en el mercado paralelo.</div>
+                    <div class="brecha-note">📐 Brecha: 0.2% — mínimo histórico reciente</div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Reporte generado el 10 de abril de 2026 | Datos aproximados de fuentes públicas</p>
+            <p style="margin-top: 0.5rem;">
+                Fuentes:
+                <a href="https://www.bcra.gob.ar/evolucion-moneda/" target="_blank">BCRA</a> ·
+                <a href="https://www.ambito.com/contenidos/dolar-oficial-historico.html" target="_blank">Ámbito</a> ·
+                <a href="https://dolarhistorico.com/cotizacion-dolar-blue" target="_blank">Dólar Histórico</a> ·
+                <a href="https://ahoradolar.com.ar/dolar-blue-historico" target="_blank">AhoraDolar</a> ·
+                <a href="https://econargy.com.ar/repositorio/dolar_blue" target="_blank">EconArgy</a> ·
+                <a href="https://fred.stlouisfed.org/series/ARGCCUSMA02STM" target="_blank">FRED</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+        const monthsFull = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+        // Dólar Oficial (ARS per USD, approximate monthly close)
+        const oficial2022 = [103, 107, 110, 114, 118, 124, 128, 136, 143, 150, 160, 177];
+        const oficial2023 = [185, 194, 202, 215, 228, 248, 270, 350, 350, 350, 365, 808];
+        const oficial2024 = [816, 840, 855, 870, 885, 900, 920, 940, 960, 980, 1005, 1031];
+        const oficial2025 = [1040, 1065, 1090, 1120, 1155, 1190, 1220, 1260, 1300, 1345, 1400, 1451];
+        const oficial2026 = [1361, 1407, 1415, 1382, null, null, null, null, null, null, null, null];
+
+        // Dólar Blue (ARS per USD, approximate monthly close)
+        const blue2022 = [209, 207, 196, 197, 201, 234, 286, 285, 284, 286, 310, 342];
+        const blue2023 = [379, 373, 388, 462, 485, 489, 545, 725, 790, 870, 855, 975];
+        const blue2024 = [1145, 1000, 980, 1010, 1195, 1335, 1340, 1275, 1205, 1150, 1090, 1195];
+        const blue2025 = [1200, 1210, 1280, 1180, 1160, 1190, 1300, 1300, 1425, 1425, 1415, 1510];
+        const blue2026 = [1450, 1405, 1390, 1385, null, null, null, null, null, null, null, null];
+
+        const years = [2022, 2023, 2024, 2025, 2026];
+        const oficialAll = [oficial2022, oficial2023, oficial2024, oficial2025, oficial2026];
+        const blueAll = [blue2022, blue2023, blue2024, blue2025, blue2026];
+
+        // Build timeline arrays
+        const allLabels = [], allOficial = [], allBlue = [], allBrecha = [];
+        oficialAll.forEach((yearData, yi) => {
+            yearData.forEach((val, mi) => {
+                if (val !== null) {
+                    allLabels.push(`${months[mi]} ${years[yi]}`);
+                    allOficial.push(val);
+                    const bv = blueAll[yi][mi];
+                    allBlue.push(bv);
+                    allBrecha.push(bv !== null ? Math.round(((bv - val) / val) * 100) : null);
+                }
+            });
+        });
+
+        // --- Main Chart: Oficial vs Blue ---
+        const mainCtx = document.getElementById('mainChart').getContext('2d');
+        const gradOficial = mainCtx.createLinearGradient(0, 0, 0, 400);
+        gradOficial.addColorStop(0, 'rgba(88, 166, 255, 0.2)');
+        gradOficial.addColorStop(1, 'rgba(88, 166, 255, 0.01)');
+        const gradBlue = mainCtx.createLinearGradient(0, 0, 0, 400);
+        gradBlue.addColorStop(0, 'rgba(248, 81, 73, 0.15)');
+        gradBlue.addColorStop(1, 'rgba(248, 81, 73, 0.01)');
+
+        const tooltipStyle = {
+            backgroundColor: '#1c2333',
+            titleColor: '#8b949e',
+            bodyColor: '#e6edf3',
+            borderColor: '#30363d',
+            borderWidth: 1,
+            padding: 12,
+        };
+
+        new Chart(mainCtx, {
+            type: 'line',
+            data: {
+                labels: allLabels,
+                datasets: [
+                    {
+                        label: 'Dólar Oficial',
+                        data: allOficial,
+                        borderColor: '#58a6ff',
+                        backgroundColor: gradOficial,
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        pointHoverBackgroundColor: '#58a6ff',
+                        pointHoverBorderColor: '#fff',
+                        pointHoverBorderWidth: 2
+                    },
+                    {
+                        label: 'Dólar Blue',
+                        data: allBlue,
+                        borderColor: '#f85149',
+                        backgroundColor: gradBlue,
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        pointHoverBackgroundColor: '#f85149',
+                        pointHoverBorderColor: '#fff',
+                        pointHoverBorderWidth: 2,
+                        borderDash: [5, 3]
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: {
+                        labels: { color: '#8b949e', usePointStyle: true, padding: 20 }
+                    },
+                    tooltip: {
+                        ...tooltipStyle,
+                        callbacks: {
+                            label: ctx => `${ctx.dataset.label}: $${ctx.parsed.y.toLocaleString('es-AR')}`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#8b949e', maxRotation: 45, autoSkip: true, maxTicksLimit: 20, font: { size: 11 } },
+                        grid: { color: 'rgba(48, 54, 61, 0.5)' }
+                    },
+                    y: {
+                        ticks: { color: '#8b949e', font: { size: 11 }, callback: v => '$' + v.toLocaleString('es-AR') },
+                        grid: { color: 'rgba(48, 54, 61, 0.5)' }
+                    }
+                }
+            }
+        });
+
+        // --- Brecha Chart ---
+        const brechaCtx = document.getElementById('brechaChart').getContext('2d');
+        const gradBrecha = brechaCtx.createLinearGradient(0, 0, 0, 300);
+        gradBrecha.addColorStop(0, 'rgba(210, 153, 34, 0.35)');
+        gradBrecha.addColorStop(1, 'rgba(210, 153, 34, 0.02)');
+
+        new Chart(brechaCtx, {
+            type: 'line',
+            data: {
+                labels: allLabels,
+                datasets: [{
+                    label: 'Brecha cambiaria (%)',
+                    data: allBrecha,
+                    borderColor: '#d29922',
+                    backgroundColor: gradBrecha,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    pointHoverBackgroundColor: '#d29922',
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        ...tooltipStyle,
+                        displayColors: false,
+                        callbacks: { label: ctx => `Brecha: ${ctx.parsed.y}%` }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#8b949e', maxRotation: 45, autoSkip: true, maxTicksLimit: 20, font: { size: 11 } },
+                        grid: { color: 'rgba(48, 54, 61, 0.5)' }
+                    },
+                    y: {
+                        ticks: { color: '#8b949e', font: { size: 11 }, callback: v => v + '%' },
+                        grid: { color: 'rgba(48, 54, 61, 0.5)' },
+                        suggestedMin: 0
+                    }
+                }
+            }
+        });
+
+        // --- Bar Chart: YoY comparison ---
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2022', '2023', '2024', '2025', '2026 (parcial)'],
+                datasets: [
+                    {
+                        label: 'Oficial (%)',
+                        data: [72, 356, 28, 41, -4.7],
+                        backgroundColor: 'rgba(88, 166, 255, 0.8)',
+                        borderColor: '#58a6ff',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        barPercentage: 0.45,
+                        categoryPercentage: 0.7
+                    },
+                    {
+                        label: 'Blue (%)',
+                        data: [63, 185, 23, 26, -8.3],
+                        backgroundColor: 'rgba(248, 81, 73, 0.8)',
+                        borderColor: '#f85149',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        barPercentage: 0.45,
+                        categoryPercentage: 0.7
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#8b949e', usePointStyle: true, padding: 20 } },
+                    tooltip: {
+                        ...tooltipStyle,
+                        callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y > 0 ? '+' : ''}${ctx.parsed.y}%` }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#8b949e', font: { size: 12, weight: '600' } },
+                        grid: { display: false }
+                    },
+                    y: {
+                        ticks: { color: '#8b949e', font: { size: 11 }, callback: v => v + '%' },
+                        grid: { color: 'rgba(48, 54, 61, 0.5)' }
+                    }
+                }
+            }
+        });
+
+        // --- Populate Table ---
+        const tbody = document.getElementById('tableBody');
+        for (let m = 0; m < 12; m++) {
+            const row = document.createElement('tr');
+            const isHighlight = (m === 7 || m === 11); // Ago, Dic
+            if (isHighlight) row.className = 'highlight-row';
+
+            let html = `<td>${monthsFull[m]}</td>`;
+            for (let y = 0; y < 5; y++) {
+                const ov = oficialAll[y][m];
+                const bv = blueAll[y][m];
+                if (ov !== null) {
+                    const brecha = Math.round(((bv - ov) / ov) * 100);
+                    html += `<td>$${ov.toLocaleString('es-AR')}</td>`;
+                    html += `<td class="val-blue">$${bv.toLocaleString('es-AR')}</td>`;
+                    html += `<td class="val-brecha">${brecha}%</td>`;
+                } else {
+                    html += `<td>—</td><td>—</td><td>—</td>`;
+                }
+            }
+            row.innerHTML = html;
+            tbody.appendChild(row);
+        }
+    </script>
+</body>
+</html>
