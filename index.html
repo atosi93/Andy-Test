@@ -321,6 +321,22 @@
         .timeline-item .event { font-size: 0.9rem; color: var(--text-primary); }
         .timeline-item .brecha-note { font-size: 0.82rem; color: var(--accent-orange); margin-top: 0.15rem; }
 
+        .nav-bar {
+            display: flex; justify-content: center; gap: 0.5rem;
+            padding: 0.75rem; margin-bottom: 1.5rem;
+            background: var(--bg-secondary); border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        .nav-bar a {
+            padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem;
+            font-weight: 600; text-decoration: none; transition: all 0.2s;
+            color: var(--text-secondary); border: 1px solid transparent;
+        }
+        .nav-bar a:hover { color: var(--text-primary); border-color: var(--border); background: var(--bg-card); }
+        .nav-bar a.active {
+            background: var(--accent-blue); color: #fff; border-color: var(--accent-blue);
+        }
+
         @media (max-width: 768px) {
             body { padding: 1rem; }
             header h1 { font-size: 1.5rem; }
@@ -328,11 +344,16 @@
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .chart-wrapper { height: 300px; }
             .brecha-grid { grid-template-columns: repeat(2, 1fr); }
+            .nav-bar { flex-direction: column; align-items: center; }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <nav class="nav-bar">
+            <a href="index.html" class="active">💵 Dólar Oficial vs Blue</a>
+            <a href="reporte-dolar-inflacion-argentina.html">📈 Dólar + Inflación</a>
+        </nav>
         <header>
             <h1>📊 Dólar Oficial vs Dólar Blue en Argentina</h1>
             <p>Comparación de cotizaciones ARS/USD — Período 2022 a abril 2026</p>
