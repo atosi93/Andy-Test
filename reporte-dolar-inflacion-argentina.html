@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dólar Oficial vs Blue vs Inflación — Argentina (2022–2026)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #1c2333;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-red: #f85149;
+            --accent-orange: #d29922;
+            --accent-purple: #bc8cff;
+            --accent-cyan: #39d2c0;
+            --accent-pink: #f778ba;
+            --border: #30363d;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; padding: 2rem;
+        }
+        .container { max-width: 1280px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+        header h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-pink));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        header p { color: var(--text-secondary); font-size: 0.95rem; }
+        .legend-header { display: flex; justify-content: center; gap: 1.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        .dot-oficial { background: var(--accent-blue); }
+        .dot-blue { background: var(--accent-red); }
+        .dot-inflacion { background: var(--accent-green); }
+        .dot-brecha { background: var(--accent-orange); }
+
+        .chart-container {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;
+        }
+        .chart-container h2 {
+            font-size: 1.15rem; color: var(--text-primary); margin-bottom: 1rem;
+            padding-left: 0.5rem; border-left: 3px solid var(--accent-blue);
+        }
+        .chart-container h2.green { border-left-color: var(--accent-green); }
+        .chart-container h2.orange { border-left-color: var(--accent-orange); }
+        .chart-container h2.purple { border-left-color: var(--accent-purple); }
+        .chart-wrapper { position: relative; height: 420px; }
+
+        /* Summary cards */
+        .summary-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1rem; margin-bottom: 2rem;
+        }
+        .sum-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 10px; padding: 1.15rem;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .sum-card:hover { transform: translateY(-2px); border-color: var(--accent-blue); }
+        .sum-card .label { font-size: 0.78rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+        .sum-card .val { font-size: 1.6rem; font-weight: 700; margin: 0.15rem 0; }
+        .sum-card .sub { font-size: 0.82rem; color: var(--text-secondary); }
+        .c-blue { color: var(--accent-blue); }
+        .c-red { color: var(--accent-red); }
+        .c-green { color: var(--accent-green); }
+        .c-orange { color: var(--accent-orange); }
+        .c-purple { color: var(--accent-purple); }
+        .c-pink { color: var(--accent-pink); }
+
+        /* Inflation highlight strip */
+        .inflacion-strip {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem; margin-bottom: 2rem;
+        }
+        .inf-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 10px; padding: 1rem; text-align: center;
+        }
+        .inf-card .year-label { font-size: 0.78rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+        .inf-card .inf-val { font-size: 1.5rem; font-weight: 700; color: var(--accent-green); }
+        .inf-card .inf-sub { font-size: 0.78rem; color: var(--text-secondary); }
+
+        /* Table */
+        .table-section {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; overflow-x: auto;
+        }
+        .table-section h2 {
+            font-size: 1.15rem; color: var(--text-primary); margin-bottom: 1rem;
+            padding-left: 0.5rem; border-left: 3px solid var(--accent-purple);
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        thead th {
+            background: var(--bg-secondary); color: var(--text-secondary);
+            padding: 0.55rem 0.4rem; text-align: right; font-weight: 600;
+            text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.04em;
+            border-bottom: 2px solid var(--border); white-space: nowrap;
+        }
+        thead th:first-child { text-align: left; border-radius: 6px 0 0 0; }
+        thead th:last-child { border-radius: 0 6px 0 0; }
+        thead th.col-of { color: var(--accent-blue); }
+        thead th.col-bl { color: var(--accent-red); }
+        thead th.col-inf { color: var(--accent-green); }
+        tbody td {
+            padding: 0.45rem 0.4rem; text-align: right;
+            border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums;
+        }
+        tbody td:first-child { text-align: left; font-weight: 600; color: var(--text-secondary); }
+        tbody td.vbl { color: var(--accent-red); opacity: 0.9; }
+        tbody td.vinf { color: var(--accent-green); }
+        tbody tr:hover { background: rgba(88, 166, 255, 0.05); }
+        .highlight-row { background: rgba(248, 81, 73, 0.08) !important; }
+
+        .note {
+            font-size: 0.82rem; color: var(--text-secondary); margin-top: 1rem;
+            padding: 0.75rem; background: var(--bg-secondary); border-radius: 6px;
+            border-left: 3px solid var(--accent-orange);
+        }
+
+        /* Events */
+        .events-section {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;
+        }
+        .events-section h2 {
+            font-size: 1.15rem; color: var(--text-primary); margin-bottom: 1rem;
+            padding-left: 0.5rem; border-left: 3px solid var(--accent-orange);
+        }
+        .timeline { position: relative; padding-left: 1.5rem; }
+        .timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--border); }
+        .timeline-item { position: relative; margin-bottom: 1.25rem; padding-left: 1rem; }
+        .timeline-item::before {
+            content: ''; position: absolute; left: -1.55rem; top: 0.5rem;
+            width: 10px; height: 10px; background: var(--accent-blue);
+            border-radius: 50%; border: 2px solid var(--bg-card);
+        }
+        .timeline-item .date { font-size: 0.8rem; color: var(--accent-blue); font-weight: 600; }
+        .timeline-item .event { font-size: 0.9rem; color: var(--text-primary); }
+        .timeline-item .extra { font-size: 0.82rem; color: var(--accent-orange); margin-top: 0.15rem; }
+
+        footer {
+            text-align: center; padding-top: 1.5rem; border-top: 1px solid var(--border);
+            color: var(--text-secondary); font-size: 0.82rem;
+        }
+        footer a { color: var(--accent-blue); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            header h1 { font-size: 1.5rem; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+            .chart-wrapper { height: 300px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>📊 Dólar Oficial vs Blue vs Inflación — Argentina</h1>
+        <p>Evolución comparada de cotizaciones e IPC — Período 2022 a abril 2026</p>
+        <div class="legend-header">
+            <div class="legend-item"><span class="legend-dot dot-oficial"></span> Dólar Oficial</div>
+            <div class="legend-item"><span class="legend-dot dot-blue"></span> Dólar Blue</div>
+            <div class="legend-item"><span class="legend-dot dot-inflacion"></span> Inflación (IPC)</div>
+            <div class="legend-item"><span class="legend-dot dot-brecha"></span> Brecha cambiaria</div>
+        </div>
+    </header>
+
+    <!-- Inflation Annual Strip -->
+    <div class="inflacion-strip">
+        <div class="inf-card">
+            <div class="year-label">Inflación 2022</div>
+            <div class="inf-val">94,8%</div>
+            <div class="inf-sub">Promedio mensual: 5,7%</div>
+        </div>
+        <div class="inf-card">
+            <div class="year-label">Inflación 2023</div>
+            <div class="inf-val">211,4%</div>
+            <div class="inf-sub">Promedio mensual: 10,1%</div>
+        </div>
+        <div class="inf-card">
+            <div class="year-label">Inflación 2024</div>
+            <div class="inf-val">117,8%</div>
+            <div class="inf-sub">Promedio mensual: 6,8%</div>
+        </div>
+        <div class="inf-card">
+            <div class="year-label">Inflación 2025</div>
+            <div class="inf-val">31,5%</div>
+            <div class="inf-sub">Promedio mensual: 2,3%</div>
+        </div>
+        <div class="inf-card">
+            <div class="year-label">Inflación 2026 (parcial)</div>
+            <div class="inf-val">~9,0%</div>
+            <div class="inf-sub">Ene–Mar | Prom. mensual: 2,9%</div>
+        </div>
+    </div>
+
+    <!-- Summary cards: Dólar cierre -->
+    <div class="summary-grid">
+        <div class="sum-card">
+            <div class="label">Dólar Oficial — Cierre 2022 → Abr 2026</div>
+            <div class="val c-blue">$177 → $1.382</div>
+            <div class="sub">Variación total: +681%</div>
+        </div>
+        <div class="sum-card">
+            <div class="label">Dólar Blue — Cierre 2022 → Abr 2026</div>
+            <div class="val c-red">$342 → $1.385</div>
+            <div class="sub">Variación total: +305%</div>
+        </div>
+        <div class="sum-card">
+            <div class="label">Inflación acumulada 2022–2025</div>
+            <div class="val c-green">~1.650%</div>
+            <div class="sub">IPC acum. 4 años (compuesto)</div>
+        </div>
+        <div class="sum-card">
+            <div class="label">Brecha Dic 2022 → Abr 2026</div>
+            <div class="val c-orange">93% → 0,2%</div>
+            <div class="sub">Convergencia casi total</div>
+        </div>
+    </div>
+
+    <!-- Chart 1: Oficial vs Blue vs Inflación mensual -->
+    <div class="chart-container">
+        <h2>Evolución mensual — Dólar Oficial vs Blue</h2>
+        <div class="chart-wrapper">
+            <canvas id="dolarChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart 2: Inflación mensual -->
+    <div class="chart-container">
+        <h2 class="green">Inflación mensual (IPC % MoM) — INDEC</h2>
+        <div class="chart-wrapper" style="height: 350px;">
+            <canvas id="infMensualChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart 3: Inflación acumulada vs Devaluación acumulada -->
+    <div class="chart-container">
+        <h2 class="purple">Acumulado: Inflación vs Devaluación oficial vs Blue (base Ene 2022 = 100)</h2>
+        <div class="chart-wrapper">
+            <canvas id="acumChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart 4: Brecha -->
+    <div class="chart-container">
+        <h2 class="orange">Brecha cambiaria (%)</h2>
+        <div class="chart-wrapper" style="height: 300px;">
+            <canvas id="brechaChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart 5: Bar — Annual comparison -->
+    <div class="chart-container">
+        <h2>Variación anual — Oficial vs Blue vs Inflación</h2>
+        <div class="chart-wrapper" style="height: 340px;">
+            <canvas id="barChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-section">
+        <h2>Detalle mensual completo — Dólar Oficial, Blue, Brecha e Inflación</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Mes</th>
+                    <th class="col-of">Oficial</th>
+                    <th class="col-bl">Blue</th>
+                    <th>Brecha</th>
+                    <th class="col-inf">IPC %</th>
+                    <th class="col-inf">IPC Acum.</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="note">
+            ⚠️ Dólar: valores aproximados de cierre mensual (ARS/USD). Inflación: IPC mensual INDEC (% MoM).
+            Marzo 2026: dato estimado (~3,0%) pendiente de publicación oficial INDEC (14/04/2026).
+            Fuentes: BCRA, INDEC, Ámbito, DolarHistorico, AhoraDolar, Trading Economics.
+        </div>
+    </div>
+
+    <!-- Events -->
+    <div class="events-section">
+        <h2>Eventos clave — Dólar, Inflación y Política Económica</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="date">2022 — Inflación alta y cepo estricto</div>
+                <div class="event">IPC acumulado 94,8%. El oficial se devaluó 72% con crawling peg, mientras el blue llegó a $342 con brecha del 93%. Inflación mensual entre 4% y 7%.</div>
+            </div>
+            <div class="timeline-item">
+                <div class="date">Agosto 2023 — PASO y espiral inflacionaria</div>
+                <div class="event">Inflación mensual saltó a 12,4% (agosto) y se mantuvo en dos dígitos. El blue se disparó a $725. Victoria de Milei aceleró la incertidumbre.</div>
+                <div class="extra">📈 Inflación Ago–Nov 2023: 12,4% → 12,7% → 8,3% → 12,8%</div>
+            </div>
+            <div class="timeline-item">
+                <div class="date">Diciembre 2023 — Devaluación + hiperinflación mensual</div>
+                <div class="event">Inflación de 25,5% en un solo mes. Devaluación oficial del 118% ($365→$808). La brecha se comprimió de ~170% a 21%.</div>
+                <div class="extra">📐 Mes con mayor inflación del período: 25,5%</div>
+            </div>
+            <div class="timeline-item">
+                <div class="date">Enero 2024 — Pico post-devaluación</div>
+                <div class="event">Inflación mensual de 20,6%, la segunda más alta del período. Efecto pass-through de la devaluación de diciembre sobre precios.</div>
+            </div>
+            <div class="timeline-item">
+                <div class="date">2024 — Desinflación progresiva</div>
+                <div class="event">La inflación mensual cayó de 20,6% (enero) a 2,7% (diciembre). Ajuste fiscal, crawling peg del 2% mensual. Acumulado anual: 117,8%.</div>
+                <div class="extra">📉 Inflación mensual se redujo 87% en 12 meses</div>
+            </div>
+            <div class="timeline-item">
+                <div class="date">2025 — Estabilización</div>
+                <div class="event">Inflación mensual promedio de 2,3%. IPC anual 31,5%, el más bajo desde 2020. Brecha cambiaria se comprimió al 4%.</div>
+            </div>
+            <div class="timeline-item">
+                <div class="date">Abril 2026 — Convergencia histórica</div>
+                <div class="event">Oficial $1.382, Blue $1.385 (brecha 0,2%). Inflación mensual ~3%. La brecha prácticamente desapareció por primera vez en años.</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Reporte generado el 10 de abril de 2026 | Datos aproximados de fuentes públicas</p>
+        <p style="margin-top: 0.5rem;">
+            Fuentes:
+            <a href="https://www.indec.gob.ar/" target="_blank">INDEC</a> ·
+            <a href="https://www.bcra.gob.ar/evolucion-moneda/" target="_blank">BCRA</a> ·
+            <a href="https://www.ambito.com/contenidos/dolar-oficial-historico.html" target="_blank">Ámbito</a> ·
+            <a href="https://dolarhistorico.com/cotizacion-dolar-blue" target="_blank">Dólar Histórico</a> ·
+            <a href="https://tradingeconomics.com/argentina/inflation-cpi" target="_blank">Trading Economics</a> ·
+            <a href="https://ahoradolar.com.ar/dolar-blue-historico" target="_blank">AhoraDolar</a>
+        </p>
+        <p style="margin-top: 0.3rem;">
+            <a href="index.html">← Ver reporte Dólar Oficial vs Blue (sin inflación)</a>
+        </p>
+    </footer>
+</div>
+
+<script>
+    const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const monthsFull = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+    // Dólar Oficial
+    const of22 = [103,107,110,114,118,124,128,136,143,150,160,177];
+    const of23 = [185,194,202,215,228,248,270,350,350,350,365,808];
+    const of24 = [816,840,855,870,885,900,920,940,960,980,1005,1031];
+    const of25 = [1040,1065,1090,1120,1155,1190,1220,1260,1300,1345,1400,1451];
+    const of26 = [1361,1407,1415,1382];
+
+    // Dólar Blue
+    const bl22 = [209,207,196,197,201,234,286,285,284,286,310,342];
+    const bl23 = [379,373,388,462,485,489,545,725,790,870,855,975];
+    const bl24 = [1145,1000,980,1010,1195,1335,1340,1275,1205,1150,1090,1195];
+    const bl25 = [1200,1210,1280,1180,1160,1190,1300,1300,1425,1425,1415,1510];
+    const bl26 = [1450,1405,1390,1385];
+
+    // Inflación mensual (% MoM)
+    const inf22 = [3.9,4.7,6.7,6.0,5.1,5.3,7.4,7.0,6.2,6.3,4.9,5.1];
+    const inf23 = [6.0,6.6,7.7,8.4,7.8,6.0,6.3,12.4,12.7,8.3,12.8,25.5];
+    const inf24 = [20.6,13.2,11.0,8.8,4.2,4.6,4.0,4.2,3.5,2.7,2.4,2.7];
+    const inf25 = [2.2,2.4,3.7,2.8,1.5,1.6,1.9,1.9,2.1,2.3,2.5,2.8];
+    const inf26 = [2.9,2.9,3.0,null];
+
+    const years = [2022,2023,2024,2025,2026];
+    const ofAll = [of22,of23,of24,of25,of26];
+    const blAll = [bl22,bl23,bl24,bl25,bl26];
+    const infAll = [inf22,inf23,inf24,inf25,inf26];
+
+    // Build arrays
+    const labels=[], aOf=[], aBl=[], aInf=[], aBrecha=[];
+    ofAll.forEach((yd,yi) => {
+        yd.forEach((v,mi) => {
+            labels.push(`${months[mi]} ${years[yi]}`);
+            aOf.push(v);
+            aBl.push(blAll[yi][mi]);
+            aBrecha.push(Math.round(((blAll[yi][mi]-v)/v)*100));
+            aInf.push(infAll[yi][mi] !== undefined ? infAll[yi][mi] : null);
+        });
+    });
+
+    // Accumulated index (base Jan 2022 = 100)
+    const acumOf=[], acumBl=[], acumInf=[];
+    const baseOf=of22[0], baseBl=bl22[0];
+    let infAccum = 100;
+    for(let i=0; i<aOf.length; i++){
+        acumOf.push(Math.round((aOf[i]/baseOf)*100));
+        acumBl.push(Math.round((aBl[i]/baseBl)*100));
+        if(aInf[i]!==null){ infAccum *= (1 + aInf[i]/100); }
+        acumInf.push(Math.round(infAccum));
+    }
+
+    const ttStyle = {
+        backgroundColor:'#1c2333', titleColor:'#8b949e', bodyColor:'#e6edf3',
+        borderColor:'#30363d', borderWidth:1, padding:12
+    };
+
+    // --- Chart 1: Dólar Oficial vs Blue ---
+    const c1 = document.getElementById('dolarChart').getContext('2d');
+    const g1a = c1.createLinearGradient(0,0,0,400); g1a.addColorStop(0,'rgba(88,166,255,0.2)'); g1a.addColorStop(1,'rgba(88,166,255,0.01)');
+    const g1b = c1.createLinearGradient(0,0,0,400); g1b.addColorStop(0,'rgba(248,81,73,0.12)'); g1b.addColorStop(1,'rgba(248,81,73,0.01)');
+    new Chart(c1,{
+        type:'line',
+        data:{
+            labels,
+            datasets:[
+                { label:'Dólar Oficial', data:aOf, borderColor:'#58a6ff', backgroundColor:g1a, borderWidth:2.5, fill:true, tension:0.3, pointRadius:0, pointHoverRadius:5 },
+                { label:'Dólar Blue', data:aBl, borderColor:'#f85149', backgroundColor:g1b, borderWidth:2.5, fill:true, tension:0.3, pointRadius:0, pointHoverRadius:5, borderDash:[5,3] }
+            ]
+        },
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
+            plugins:{
+                legend:{labels:{color:'#8b949e',usePointStyle:true,padding:20}},
+                tooltip:{...ttStyle, callbacks:{label:ctx=>`${ctx.dataset.label}: $${ctx.parsed.y.toLocaleString('es-AR')}`}}
+            },
+            scales:{
+                x:{ticks:{color:'#8b949e',maxRotation:45,autoSkip:true,maxTicksLimit:20,font:{size:11}},grid:{color:'rgba(48,54,61,0.5)'}},
+                y:{ticks:{color:'#8b949e',font:{size:11},callback:v=>'$'+v.toLocaleString('es-AR')},grid:{color:'rgba(48,54,61,0.5)'}}
+            }
+        }
+    });
+
+    // --- Chart 2: Inflación mensual ---
+    const c2 = document.getElementById('infMensualChart').getContext('2d');
+    const g2 = c2.createLinearGradient(0,0,0,320); g2.addColorStop(0,'rgba(63,185,80,0.35)'); g2.addColorStop(1,'rgba(63,185,80,0.02)');
+    new Chart(c2,{
+        type:'bar',
+        data:{
+            labels,
+            datasets:[{
+                label:'Inflación mensual (%)',
+                data:aInf,
+                backgroundColor: aInf.map(v => v !== null && v >= 10 ? 'rgba(248,81,73,0.7)' : 'rgba(63,185,80,0.6)'),
+                borderColor: aInf.map(v => v !== null && v >= 10 ? '#f85149' : '#3fb950'),
+                borderWidth:1, borderRadius:3, barPercentage:0.85
+            }]
+        },
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            plugins:{
+                legend:{display:false},
+                tooltip:{...ttStyle, displayColors:false, callbacks:{label:ctx=> ctx.parsed.y !== null ? `IPC: ${ctx.parsed.y}%` : 'Sin dato'}}
+            },
+            scales:{
+                x:{ticks:{color:'#8b949e',maxRotation:45,autoSkip:true,maxTicksLimit:20,font:{size:10}},grid:{display:false}},
+                y:{ticks:{color:'#8b949e',font:{size:11},callback:v=>v+'%'},grid:{color:'rgba(48,54,61,0.5)'}}
+            }
+        }
+    });
+
+    // --- Chart 3: Acumulado (base 100) ---
+    const c3 = document.getElementById('acumChart').getContext('2d');
+    new Chart(c3,{
+        type:'line',
+        data:{
+            labels,
+            datasets:[
+                { label:'Dólar Oficial', data:acumOf, borderColor:'#58a6ff', borderWidth:2.5, tension:0.3, pointRadius:0, pointHoverRadius:5, fill:false },
+                { label:'Dólar Blue', data:acumBl, borderColor:'#f85149', borderWidth:2.5, tension:0.3, pointRadius:0, pointHoverRadius:5, fill:false, borderDash:[5,3] },
+                { label:'Inflación (IPC)', data:acumInf, borderColor:'#3fb950', borderWidth:2.5, tension:0.3, pointRadius:0, pointHoverRadius:5, fill:false, borderDash:[2,2] }
+            ]
+        },
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
+            plugins:{
+                legend:{labels:{color:'#8b949e',usePointStyle:true,padding:20}},
+                tooltip:{...ttStyle, callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y}`}}
+            },
+            scales:{
+                x:{ticks:{color:'#8b949e',maxRotation:45,autoSkip:true,maxTicksLimit:20,font:{size:11}},grid:{color:'rgba(48,54,61,0.5)'}},
+                y:{ticks:{color:'#8b949e',font:{size:11}},grid:{color:'rgba(48,54,61,0.5)'},title:{display:true,text:'Base 100 = Ene 2022',color:'#8b949e'}}
+            }
+        }
+    });
+
+    // --- Chart 4: Brecha ---
+    const c4 = document.getElementById('brechaChart').getContext('2d');
+    const g4 = c4.createLinearGradient(0,0,0,280); g4.addColorStop(0,'rgba(210,153,34,0.3)'); g4.addColorStop(1,'rgba(210,153,34,0.02)');
+    new Chart(c4,{
+        type:'line',
+        data:{
+            labels,
+            datasets:[{
+                label:'Brecha cambiaria (%)', data:aBrecha,
+                borderColor:'#d29922', backgroundColor:g4, borderWidth:2, fill:true,
+                tension:0.3, pointRadius:0, pointHoverRadius:5
+            }]
+        },
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
+            plugins:{
+                legend:{display:false},
+                tooltip:{...ttStyle, displayColors:false, callbacks:{label:ctx=>`Brecha: ${ctx.parsed.y}%`}}
+            },
+            scales:{
+                x:{ticks:{color:'#8b949e',maxRotation:45,autoSkip:true,maxTicksLimit:20,font:{size:11}},grid:{color:'rgba(48,54,61,0.5)'}},
+                y:{ticks:{color:'#8b949e',font:{size:11},callback:v=>v+'%'},grid:{color:'rgba(48,54,61,0.5)'},suggestedMin:0}
+            }
+        }
+    });
+
+    // --- Chart 5: Bar annual ---
+    new Chart(document.getElementById('barChart').getContext('2d'),{
+        type:'bar',
+        data:{
+            labels:['2022','2023','2024','2025','2026 (parcial)'],
+            datasets:[
+                { label:'Oficial (%)', data:[72,356,28,41,-4.7], backgroundColor:'rgba(88,166,255,0.8)', borderColor:'#58a6ff', borderWidth:1, borderRadius:6, barPercentage:0.35, categoryPercentage:0.8 },
+                { label:'Blue (%)', data:[63,185,23,26,-8.3], backgroundColor:'rgba(248,81,73,0.8)', borderColor:'#f85149', borderWidth:1, borderRadius:6, barPercentage:0.35, categoryPercentage:0.8 },
+                { label:'Inflación (%)', data:[94.8,211.4,117.8,31.5,9], backgroundColor:'rgba(63,185,80,0.8)', borderColor:'#3fb950', borderWidth:1, borderRadius:6, barPercentage:0.35, categoryPercentage:0.8 }
+            ]
+        },
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            plugins:{
+                legend:{labels:{color:'#8b949e',usePointStyle:true,padding:20}},
+                tooltip:{...ttStyle, callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y>0?'+':''}${ctx.parsed.y}%`}}
+            },
+            scales:{
+                x:{ticks:{color:'#8b949e',font:{size:12,weight:'600'}},grid:{display:false}},
+                y:{ticks:{color:'#8b949e',font:{size:11},callback:v=>v+'%'},grid:{color:'rgba(48,54,61,0.5)'}}
+            }
+        }
+    });
+
+    // --- Populate Table ---
+    const tbody = document.getElementById('tableBody');
+    let infRunning = 0;
+    for(let i=0; i<labels.length; i++){
+        const tr = document.createElement('tr');
+        const inf = aInf[i];
+        if(inf !== null) infRunning += inf;
+        const brecha = Math.round(((aBl[i]-aOf[i])/aOf[i])*100);
+        const isHigh = inf !== null && inf >= 10;
+        if(isHigh) tr.className = 'highlight-row';
+        tr.innerHTML = `
+            <td>${labels[i]}</td>
+            <td>$${aOf[i].toLocaleString('es-AR')}</td>
+            <td class="vbl">$${aBl[i].toLocaleString('es-AR')}</td>
+            <td>${brecha}%</td>
+            <td class="vinf">${inf !== null ? inf.toFixed(1)+'%' : '—'}</td>
+            <td class="vinf">${inf !== null ? infRunning.toFixed(1)+'%' : '—'}</td>
+        `;
+        tbody.appendChild(tr);
+    }
+</script>
+</body>
+</html>
