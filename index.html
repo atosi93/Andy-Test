@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🅿️ Parking Microsoft</title>
+    <style>
+        :root {
+            --blue: #0078D4;
+            --dark-blue: #005A9E;
+            --light-blue: #DEECF9;
+            --green: #107C10;
+            --red: #D13438;
+            --orange: #FF8C00;
+            --gray: #605E5C;
+            --light-gray: #F3F2F1;
+            --black: #323130;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', -apple-system, sans-serif;
+            background: #f0f2f5;
+            color: var(--black);
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ---- Header ---- */
+        .header {
+            background: linear-gradient(135deg, var(--blue), var(--dark-blue));
+            color: #fff;
+            padding: 16px 20px;
+            text-align: center;
+            position: sticky; top: 0; z-index: 50;
+        }
+        .header h1 { font-size: 18px; font-weight: 600; }
+        .header .subtitle { font-size: 12px; opacity: .8; margin-top: 2px; }
+
+        /* ---- Nav tabs ---- */
+        .nav {
+            display: flex;
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky; top: 56px; z-index: 40;
+        }
+        .nav button {
+            flex: 1;
+            padding: 12px 0;
+            border: none;
+            background: none;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: .2s;
+        }
+        .nav button.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+        /* ---- Screens ---- */
+        .screen { display: none; flex: 1; padding: 20px 16px 100px; }
+        .screen.active { display: block; }
+
+        /* ---- Day toggle ---- */
+        .day-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .day-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid var(--blue);
+            background: #fff;
+            color: var(--blue);
+            font-weight: 600;
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: .2s;
+        }
+        .day-btn.active { background: var(--blue); color: #fff; }
+
+        /* ---- Stats mini ---- */
+        .stats-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .stat-pill {
+            flex: 1;
+            text-align: center;
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08);
+        }
+        .stat-pill .num { font-size: 22px; font-weight: 700; }
+        .stat-pill .lbl { font-size: 10px; color: var(--gray); margin-top: 2px; }
+        .stat-pill.free .num { color: var(--green); }
+        .stat-pill.used .num { color: var(--orange); }
+
+        /* ---- Big plate input ---- */
+        .plate-box {
+            background: #fff;
+            border-radius: 14px;
+            padding: 24px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.08);
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .plate-box label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+        .plate-input {
+            width: 100%;
+            max-width: 200px;
+            font-size: 40px;
+            text-align: center;
+            letter-spacing: 12px;
+            font-weight: 800;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            padding: 12px 8px;
+            outline: none;
+            text-transform: uppercase;
+            font-family: 'Consolas', 'Courier New', monospace;
+            transition: border-color .2s;
+            caret-color: var(--blue);
+        }
+        .plate-input:focus { border-color: var(--blue); }
+        .plate-input::placeholder { letter-spacing: 12px; color: #ccc; }
+
+        /* ---- Result card ---- */
+        .result-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.08);
+            margin-bottom: 16px;
+            text-align: center;
+            animation: fadeUp .3s ease;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .result-card.my-spot {
+            border: 2px solid var(--blue);
+            background: linear-gradient(135deg, #EBF3FB, #DEECF9);
+        }
+        .result-card.search-result {
+            border: 2px solid var(--green);
+            background: linear-gradient(135deg, #EBF8EB, #D5F0D5);
+        }
+        .result-card.not-found {
+            border: 2px solid #ddd;
+            background: #fafafa;
+        }
+        .result-icon { font-size: 40px; margin-bottom: 8px; }
+        .result-big { font-size: 52px; font-weight: 800; line-height: 1; color: var(--blue); }
+        .result-label { font-size: 14px; color: var(--gray); margin-top: 4px; }
+        .result-alias { font-size: 20px; font-weight: 700; color: var(--black); margin-top: 4px; }
+
+        /* ---- Buttons ---- */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: .2s;
+            margin-bottom: 10px;
+        }
+        .btn-primary { background: var(--blue); color: #fff; }
+        .btn-primary:active { background: var(--dark-blue); }
+        .btn-primary:disabled { background: #bbb; }
+        .btn-danger { background: var(--red); color: #fff; }
+        .btn-danger:active { background: #a52a2d; }
+        .btn-outline {
+            background: #fff;
+            color: var(--blue);
+            border: 2px solid var(--blue);
+        }
+
+        /* ---- Spot grid (compact) ---- */
+        .grid-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+        .spot-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+        .spot-cell {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            border: 2px solid transparent;
+            transition: .2s;
+        }
+        .spot-cell.free {
+            background: #E8F5E9;
+            border-color: #A5D6A7;
+            color: var(--green);
+        }
+        .spot-cell.taken {
+            background: #FFF3E0;
+            border-color: #FFCC80;
+            color: #E65100;
+        }
+        .spot-cell.mine-spot {
+            background: var(--light-blue);
+            border-color: var(--blue);
+            color: var(--blue);
+            animation: pulse .8s ease-in-out;
+        }
+        @keyframes pulse {
+            0%,100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        .spot-cell .spot-sub {
+            font-size: 8px;
+            font-weight: 600;
+            opacity: .7;
+            margin-top: 1px;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ---- Employee list ---- */
+        .emp-item {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.06);
+            gap: 12px;
+        }
+        .emp-plate {
+            font-family: 'Consolas', monospace;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--blue);
+            background: var(--light-blue);
+            padding: 4px 10px;
+            border-radius: 6px;
+            min-width: 56px;
+            text-align: center;
+        }
+        .emp-info { flex: 1; }
+        .emp-alias { font-weight: 600; font-size: 15px; }
+        .emp-del {
+            background: none; border: none;
+            font-size: 20px; cursor: pointer;
+            color: var(--gray);
+            padding: 4px;
+        }
+
+        /* ---- Toast ---- */
+        .toast-area {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            width: 90%;
+            max-width: 360px;
+        }
+        .toast {
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,.2);
+            animation: toastIn .3s ease, toastOut .3s ease 2.7s forwards;
+            width: 100%;
+        }
+        .toast.success { background: var(--green); }
+        .toast.error { background: var(--red); }
+        .toast.info { background: var(--blue); }
+        @keyframes toastIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+
+        /* ---- Modal ---- */
+        .modal-bg {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,.45); z-index: 100;
+            justify-content: center; align-items: flex-end;
+            backdrop-filter: blur(2px);
+        }
+        .modal-bg.open { display: flex; }
+        .modal-sheet {
+            background: #fff;
+            width: 100%;
+            max-width: 420px;
+            border-radius: 20px 20px 0 0;
+            padding: 28px 20px 36px;
+            animation: sheetUp .3s ease;
+        }
+        @keyframes sheetUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .modal-sheet h2 { font-size: 18px; margin-bottom: 16px; text-align: center; }
+        .modal-sheet .form-group { margin-bottom: 14px; }
+        .modal-sheet label { display: block; font-size: 13px; font-weight: 600; color: var(--gray); margin-bottom: 6px; }
+        .modal-sheet input {
+            width: 100%; padding: 12px 14px;
+            border: 2px solid #ddd; border-radius: 10px;
+            font-size: 16px; font-family: inherit; outline: none;
+            transition: border-color .2s;
+        }
+        .modal-sheet input:focus { border-color: var(--blue); }
+        .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+        .modal-actions .btn { flex: 1; margin-bottom: 0; }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+    <h1>🅿️ Parking Microsoft</h1>
+    <div class="subtitle" id="dateLabel"></div>
+</div>
+
+<!-- Nav -->
+<div class="nav">
+    <button class="active" onclick="showScreen('reserve', this)">🅿️ Reservar</button>
+    <button onclick="showScreen('search', this)">🔍 Buscar</button>
+    <button onclick="showScreen('map', this)">🗺️ Mapa</button>
+    <button onclick="showScreen('admin', this)">👥 Equipo</button>
+</div>
+
+<!-- ===== SCREEN: Reservar ===== -->
+<div class="screen active" id="screen-reserve">
+    <div class="day-toggle">
+        <button class="day-btn active" onclick="setDay('today', this)" id="dayToday">Hoy</button>
+        <button class="day-btn" onclick="setDay('tomorrow', this)" id="dayTomorrow">Mañana</button>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-pill free"><div class="num" id="sFree">30</div><div class="lbl">Libres</div></div>
+        <div class="stat-pill used"><div class="num" id="sUsed">0</div><div class="lbl">Ocupadas</div></div>
+    </div>
+
+    <div class="plate-box">
+        <label>Ingresá los últimos 3 dígitos de tu patente</label>
+        <input type="text" class="plate-input" id="reservePlate" maxlength="3" placeholder="···" inputmode="text" autocomplete="off"
+               oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,''); onReservePlateInput()">
+    </div>
+
+    <div id="reserveResult"></div>
+</div>
+
+<!-- ===== SCREEN: Buscar ===== -->
+<div class="screen" id="screen-search">
+    <div class="plate-box">
+        <label>Buscá a alguien por los últimos 3 dígitos de su patente</label>
+        <input type="text" class="plate-input" id="searchPlate" maxlength="3" placeholder="···" inputmode="text" autocomplete="off"
+               oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,''); onSearchPlate()">
+    </div>
+    <div id="searchResult"></div>
+</div>
+
+<!-- ===== SCREEN: Mapa ===== -->
+<div class="screen" id="screen-map">
+    <div class="day-toggle">
+        <button class="day-btn active" onclick="setDay('today', this)" id="mapDayToday">Hoy</button>
+        <button class="day-btn" onclick="setDay('tomorrow', this)" id="mapDayTomorrow">Mañana</button>
+    </div>
+    <div class="stats-row">
+        <div class="stat-pill free"><div class="num" id="mFree">30</div><div class="lbl">Libres</div></div>
+        <div class="stat-pill used"><div class="num" id="mUsed">0</div><div class="lbl">Ocupadas</div></div>
+    </div>
+    <div class="grid-title">Cocheras 1–30</div>
+    <div class="spot-grid" id="spotGrid"></div>
+</div>
+
+<!-- ===== SCREEN: Admin (Equipo) ===== -->
+<div class="screen" id="screen-admin">
+    <button class="btn btn-primary" onclick="openAddEmployee()" style="margin-bottom:16px;">➕ Registrar empleado</button>
+    <div id="empList"></div>
+</div>
+
+<!-- Toast area -->
+<div class="toast-area" id="toastArea"></div>
+
+<!-- Modal: Add employee -->
+<div class="modal-bg" id="addEmpModal" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="modal-sheet">
+        <h2>👤 Registrar empleado</h2>
+        <div class="form-group">
+            <label>Alias de Microsoft (ej: jperez)</label>
+            <input type="text" id="newEmpAlias" placeholder="alias" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <label>Últimos 3 dígitos de la patente</label>
+            <input type="text" id="newEmpPlate" maxlength="3" placeholder="···" inputmode="text" autocomplete="off"
+                   style="font-size:28px; text-align:center; letter-spacing:10px; font-weight:800; font-family:'Consolas',monospace;"
+                   oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveEmployee()">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Confirm -->
+<div class="modal-bg" id="confirmModal" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="modal-sheet">
+        <h2 id="cfmTitle"></h2>
+        <p id="cfmMsg" style="text-align:center; color:var(--gray); margin-bottom:16px;"></p>
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeConfirm()">No</button>
+            <button class="btn btn-danger" id="cfmBtn">Sí</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const TOTAL = 30;
+let selectedDay = 'today';
+
+// ---- Helpers ----
+function dateKey(day) {
+    const d = new Date();
+    if (day === 'tomorrow') d.setDate(d.getDate() + 1);
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function niceDate(day) {
+    const d = new Date();
+    if (day === 'tomorrow') d.setDate(d.getDate() + 1);
+    const dias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    return `${dias[d.getDay()]} ${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+// ---- Storage ----
+const store = {
+    get reservations() { return JSON.parse(localStorage.getItem('pk_res') || '{}'); },
+    set reservations(v) { localStorage.setItem('pk_res', JSON.stringify(v)); },
+    get employees() { return JSON.parse(localStorage.getItem('pk_emp') || '{}'); },
+    set employees(v) { localStorage.setItem('pk_emp', JSON.stringify(v)); },
+};
+
+function getRes(day) {
+    const all = store.reservations;
+    const dk = dateKey(day || selectedDay);
+    return all[dk] || {};
+}
+function setRes(spotNum, plate, day) {
+    const all = store.reservations;
+    const dk = dateKey(day || selectedDay);
+    if (!all[dk]) all[dk] = {};
+    all[dk][spotNum] = { plate, time: new Date().toISOString() };
+    store.reservations = all;
+}
+function delRes(spotNum, day) {
+    const all = store.reservations;
+    const dk = dateKey(day || selectedDay);
+    if (all[dk]) { delete all[dk][spotNum]; store.reservations = all; }
+}
+function findSpotByPlate(plate, day) {
+    const res = getRes(day);
+    for (const s in res) if (res[s].plate === plate) return Number(s);
+    return null;
+}
+function findNextFreeSpot(day) {
+    const res = getRes(day);
+    for (let i = 1; i <= TOTAL; i++) if (!res[i]) return i;
+    return null;
+}
+function countUsed(day) {
+    return Object.keys(getRes(day)).length;
+}
+
+// ---- Clean old data on load ----
+(function cleanOld() {
+    const all = store.reservations;
+    const yest = new Date(); yest.setDate(yest.getDate() - 1);
+    const yk = yest.getFullYear() + '-' + String(yest.getMonth()+1).padStart(2,'0') + '-' + String(yest.getDate()).padStart(2,'0');
+    Object.keys(all).forEach(k => { if (k < yk) delete all[k]; });
+    store.reservations = all;
+})();
+
+// ---- Seed demo employees ----
+if (Object.keys(store.employees).length === 0) {
+    store.employees = {
+        'A12': 'cgarcia', 'B34': 'mlopez', 'C56': 'jmartinez',
+        'D78': 'arodriguez', 'E90': 'psanchez', 'F23': 'lfernandez',
+        'G45': 'dtorres', 'H67': 'smorales', 'J89': 'asilva', 'K01': 'vruiz'
+    };
+}
+
+// ---- Nav / Screens ----
+function showScreen(name, btn) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (name === 'map') renderMap();
+    if (name === 'admin') renderEmployees();
+    refreshStats();
+}
+
+function setDay(day, btn) {
+    selectedDay = day;
+    // sync all day toggles
+    document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.day-btn').forEach(b => {
+        if ((day === 'today' && (b.id === 'dayToday' || b.id === 'mapDayToday')) ||
+            (day === 'tomorrow' && (b.id === 'dayTomorrow' || b.id === 'mapDayTomorrow')))
+            b.classList.add('active');
+    });
+    refreshStats();
+    renderMap();
+    // re-trigger reserve plate if filled
+    onReservePlateInput();
+}
+
+function refreshStats() {
+    const used = countUsed();
+    const free = TOTAL - used;
+    document.getElementById('sFree').textContent = free;
+    document.getElementById('sUsed').textContent = used;
+    document.getElementById('mFree').textContent = free;
+    document.getElementById('mUsed').textContent = used;
+}
+
+// ---- RESERVE flow ----
+function onReservePlateInput() {
+    const plate = document.getElementById('reservePlate').value;
+    const box = document.getElementById('reserveResult');
+
+    if (plate.length < 3) { box.innerHTML = ''; return; }
+
+    const emp = store.employees;
+    const alias = emp[plate];
+
+    // Check if already has a spot
+    const mySpot = findSpotByPlate(plate);
+
+    if (mySpot) {
+        box.innerHTML = `
+            <div class="result-card my-spot">
+                <div class="result-icon">🅿️</div>
+                <div class="result-big">${mySpot}</div>
+                <div class="result-label">Tu cochera para ${selectedDay === 'today' ? 'hoy' : 'mañana'}</div>
+                ${alias ? `<div class="result-alias">@${alias}</div>` : ''}
+            </div>
+            <button class="btn btn-danger" onclick="handleCancel('${plate}', ${mySpot})">❌ Cancelar reserva</button>
+        `;
+        return;
+    }
+
+    if (!alias) {
+        box.innerHTML = `
+            <div class="result-card not-found">
+                <div class="result-icon">❓</div>
+                <div class="result-label">Patente <strong>${plate}</strong> no registrada</div>
+                <div style="margin-top:10px">
+                    <button class="btn btn-outline" onclick="openAddEmployee('${plate}')">Registrarme</button>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    // Can reserve
+    const nextSpot = findNextFreeSpot();
+    if (!nextSpot) {
+        box.innerHTML = `
+            <div class="result-card not-found">
+                <div class="result-icon">😢</div>
+                <div class="result-label">No hay cocheras disponibles para ${selectedDay === 'today' ? 'hoy' : 'mañana'}</div>
+            </div>
+        `;
+        return;
+    }
+
+    box.innerHTML = `
+        <div class="result-card" style="border:2px solid var(--light-gray);">
+            <div style="font-size:14px; color:var(--gray); margin-bottom:4px;">Hola <strong>@${alias}</strong></div>
+            <div style="font-size:14px; margin-bottom:12px;">Se te asignará la cochera:</div>
+            <div class="result-big" style="color:var(--green);">${nextSpot}</div>
+        </div>
+        <button class="btn btn-primary" onclick="doReserve('${plate}', ${nextSpot})">🅿️ Confirmar reserva</button>
+    `;
+}
+
+function doReserve(plate, spot) {
+    setRes(spot, plate);
+    toast(`✅ Cochera ${spot} reservada`, 'success');
+    refreshStats();
+    renderMap();
+    onReservePlateInput();
+}
+
+function handleCancel(plate, spot) {
+    confirm('Cancelar reserva', `¿Liberar la cochera ${spot}?`, () => {
+        delRes(spot);
+        toast('Cochera liberada', 'info');
+        refreshStats();
+        renderMap();
+        onReservePlateInput();
+    });
+}
+
+// ---- SEARCH flow ----
+function onSearchPlate() {
+    const plate = document.getElementById('searchPlate').value;
+    const box = document.getElementById('searchResult');
+
+    if (plate.length < 3) { box.innerHTML = ''; return; }
+
+    const emp = store.employees;
+    const alias = emp[plate];
+
+    // Check both days
+    const spotToday = findSpotByPlate(plate, 'today');
+    const spotTomorrow = findSpotByPlate(plate, 'tomorrow');
+
+    if (!alias && !spotToday && !spotTomorrow) {
+        box.innerHTML = `
+            <div class="result-card not-found">
+                <div class="result-icon">🤷</div>
+                <div class="result-label">No se encontró nadie con patente <strong>***${plate}</strong></div>
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+    if (alias) {
+        html += `
+            <div class="result-card search-result">
+                <div class="result-icon">👤</div>
+                <div class="result-alias">@${alias}</div>
+                <div class="result-label">Patente ***${plate}</div>
+            </div>
+        `;
+    }
+    if (spotToday) {
+        html += `
+            <div class="result-card my-spot">
+                <div style="font-size:12px; font-weight:600; color:var(--gray); margin-bottom:4px;">HOY</div>
+                <div class="result-big">${spotToday}</div>
+                <div class="result-label">Cochera asignada</div>
+            </div>
+        `;
+    }
+    if (spotTomorrow) {
+        html += `
+            <div class="result-card my-spot">
+                <div style="font-size:12px; font-weight:600; color:var(--gray); margin-bottom:4px;">MAÑANA</div>
+                <div class="result-big">${spotTomorrow}</div>
+                <div class="result-label">Cochera asignada</div>
+            </div>
+        `;
+    }
+    if (!spotToday && !spotTomorrow) {
+        html += `
+            <div class="result-card not-found" style="border-color:#eee;">
+                <div class="result-label">No tiene cochera reservada hoy ni mañana</div>
+            </div>
+        `;
+    }
+
+    box.innerHTML = html;
+}
+
+// ---- MAP ----
+function renderMap() {
+    const grid = document.getElementById('spotGrid');
+    const res = getRes();
+    const emp = store.employees;
+    const reservePlate = document.getElementById('reservePlate').value;
+
+    grid.innerHTML = '';
+    for (let i = 1; i <= TOTAL; i++) {
+        const r = res[i];
+        const cell = document.createElement('div');
+        cell.className = 'spot-cell';
+
+        if (r) {
+            const alias = emp[r.plate] || r.plate;
+            const isMine = r.plate === reservePlate && reservePlate.length === 3;
+            cell.classList.add(isMine ? 'mine-spot' : 'taken');
+            cell.innerHTML = `<div>${i}</div><div class="spot-sub">${isMine ? 'TÚ' : alias}</div>`;
+        } else {
+            cell.classList.add('free');
+            cell.innerHTML = `<div>${i}</div>`;
+        }
+        grid.appendChild(cell);
+    }
+}
+
+// ---- EMPLOYEES ----
+function renderEmployees() {
+    const list = document.getElementById('empList');
+    const emp = store.employees;
+    const keys = Object.keys(emp).sort((a,b) => emp[a].localeCompare(emp[b]));
+
+    if (keys.length === 0) {
+        list.innerHTML = '<p style="text-align:center; color:var(--gray); padding:20px;">No hay empleados registrados</p>';
+        return;
+    }
+
+    list.innerHTML = keys.map(plate => `
+        <div class="emp-item">
+            <div class="emp-plate">${plate}</div>
+            <div class="emp-info"><div class="emp-alias">@${emp[plate]}</div></div>
+            <button class="emp-del" onclick="deleteEmployee('${plate}')" title="Eliminar">🗑️</button>
+        </div>
+    `).join('');
+}
+
+function openAddEmployee(prefill) {
+    document.getElementById('newEmpAlias').value = '';
+    document.getElementById('newEmpPlate').value = prefill || '';
+    document.getElementById('addEmpModal').classList.add('open');
+    setTimeout(() => document.getElementById('newEmpAlias').focus(), 100);
+}
+function closeModal() { document.getElementById('addEmpModal').classList.remove('open'); }
+
+function saveEmployee() {
+    const alias = document.getElementById('newEmpAlias').value.trim().toLowerCase().replace('@','');
+    const plate = document.getElementById('newEmpPlate').value.trim().toUpperCase();
+
+    if (!alias || plate.length !== 3) {
+        toast('Completá alias y 3 dígitos', 'error');
+        return;
+    }
+
+    const emp = store.employees;
+    emp[plate] = alias;
+    store.employees = emp;
+    closeModal();
+    toast(`✅ @${alias} registrado`, 'success');
+    renderEmployees();
+    onReservePlateInput();
+    onSearchPlate();
+}
+
+function deleteEmployee(plate) {
+    const emp = store.employees;
+    confirm('Eliminar', `¿Eliminar a @${emp[plate]}?`, () => {
+        delete emp[plate];
+        store.employees = emp;
+        toast('Empleado eliminado', 'info');
+        renderEmployees();
+    });
+}
+
+// ---- UI helpers ----
+function toast(msg, type) {
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    t.textContent = msg;
+    document.getElementById('toastArea').appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+
+function confirm(title, msg, cb) {
+    document.getElementById('cfmTitle').textContent = title;
+    document.getElementById('cfmMsg').textContent = msg;
+    document.getElementById('confirmModal').classList.add('open');
+    document.getElementById('cfmBtn').onclick = () => { closeConfirm(); cb(); };
+}
+function closeConfirm() { document.getElementById('confirmModal').classList.remove('open'); }
+
+// ---- INIT ----
+document.getElementById('dateLabel').textContent = niceDate('today');
+document.getElementById('dayToday').textContent = `Hoy · ${niceDate('today')}`;
+document.getElementById('dayTomorrow').textContent = `Mañana · ${niceDate('tomorrow')}`;
+document.getElementById('mapDayToday').textContent = `Hoy`;
+document.getElementById('mapDayTomorrow').textContent = `Mañana`;
+refreshStats();
+renderMap();
+renderEmployees();
+</script>
+</body>
+</html>
