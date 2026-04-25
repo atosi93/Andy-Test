@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Vice Mundial · Edición 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bricolage+Grotesque:wght@500;700;900&family=Fraunces:ital,wght@1,800;1,900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <p class="eyebrow">Vicejefatura · GCABA</p>
+      <h1 class="brand-title"><span class="brand-fun">La Vice</span> <span class="brand-fun brand-fun-alt">Mundial</span></h1>
+      <p class="brand-sub">Edición 2026</p>
+    </div>
+    <button id="logoutBtn" class="ghost hidden">Salir</button>
+  </header>
+
+  <main>
+    <section id="authView" class="card auth-card">
+      <div>
+        <p class="eyebrow">Competencia interna</p>
+        <h2>Entrá al prode</h2>
+        <p class="muted">Creá tu usuario, cargá tus apuestas y seguí el ranking del equipo.</p>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="login">Ingresar</button>
+        <button class="tab" data-tab="register">Registrarme</button>
+      </div>
+
+      <form id="loginForm" class="form">
+        <label>Usuario<input name="username" autocomplete="username" required></label>
+        <label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label>
+        <button type="submit">Ingresar</button>
+      </form>
+
+      <form id="registerForm" class="form hidden">
+        <label>Nombre visible<input name="name" autocomplete="name" required></label>
+        <label>Usuario<input name="username" autocomplete="username" required></label>
+        <label>Contraseña<input name="password" type="password" autocomplete="new-password" required minlength="6"></label>
+        <label>Código de invitación<input name="inviteCode" required placeholder="VICEJEFATURA2026"></label>
+        <button type="submit">Crear usuario</button>
+      </form>
+      <p id="authError" class="error"></p>
+    </section>
+
+    <section id="appView" class="hidden">
+      <section class="hero card">
+        <div>
+          <p class="eyebrow">Panel de juego</p>
+          <h2 id="welcomeTitle">Hola</h2>
+          <div class="hero-actions">
+            <button id="rulesBtn" class="ghost rules-btn" type="button">📖 Reglas y premios</button>
+            <button id="pledgeBtn" class="ghost rules-btn" type="button">🤝 Cargar mi promesa</button>
+          </div>
+        </div>
+        <div class="stats">
+          <div><strong id="myPoints">0</strong><span>mis puntos</span></div>
+          <div><strong id="myPredictions">0</strong><span>apuestas</span></div>
+          <div><strong id="myPosition">-</strong><span>posición</span></div>
+        </div>
+      </section>
+
+      <div id="announcementBanner" class="announcement hidden"></div>
+
+      <div class="grid">
+        <section class="fixtures-area">
+          <section class="card">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">Vista compacta</p>
+                <h2>Fase de grupos</h2>
+              </div>
+              <div class="group-controls">
+                <div class="view-toggle" role="tablist">
+                  <button type="button" class="view-toggle-btn active" data-view="group" role="tab">Por grupo</button>
+                  <button type="button" class="view-toggle-btn" data-view="date" role="tab">Por fecha</button>
+                </div>
+                <label class="group-picker" id="groupPickerLabel">
+                  Grupo
+                  <select id="groupSelect"></select>
+                </label>
+                <label class="group-picker hidden" id="datePickerLabel">
+                  Fecha
+                  <select id="dateSelect"></select>
+                </label>
+                <button id="refreshBtn" class="ghost">Actualizar</button>
+              </div>
+            </div>
+            <div id="groupsList" class="groups-grid"></div>
+          </section>
+
+          <section class="card bracket-card">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">Llaves</p>
+                <h2>Eliminatorias</h2>
+              </div>
+            </div>
+            <div id="bracketList" class="bracket"></div>
+          </section>
+        </section>
+
+        <aside class="card pledges-card">
+          <div class="ranking-header">
+            <div>
+              <p class="eyebrow">Apuestas personales</p>
+              <h2>🤝 Promesas</h2>
+            </div>
+          </div>
+          <p class="muted pledges-empty hidden" id="pledgesEmpty">Todavía nadie cargó una promesa. ¡Sé el primero!</p>
+          <ul id="pledgesList" class="pledges-list"></ul>
+          <button id="pledgesToggle" type="button" class="ghost pledges-toggle hidden"></button>
+        </aside>
+
+        <aside class="card">
+          <div class="ranking-header">
+            <h2>Ranking</h2>
+            <button id="rankingFullscreenBtn" class="ghost btn-sm" type="button" title="Vista completa para proyectar">📺 Pantalla</button>
+          </div>
+          <div id="rankingList" class="ranking"></div>
+        </aside>
+      </div>
+
+      <section id="adminPanel" class="card hidden">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Admin</p>
+            <h2>⚡ Superpoderes</h2>
+          </div>
+        </div>
+        <div class="tabs admin-tabs">
+          <button type="button" class="admin-tab tab active" data-admin-tab="results">Resultados</button>
+          <button type="button" class="admin-tab tab" data-admin-tab="content">Reglas & Premios</button>
+          <button type="button" class="admin-tab tab" data-admin-tab="bets">Apuestas</button>
+          <button type="button" class="admin-tab tab" data-admin-tab="users">Usuarios</button>
+          <button type="button" class="admin-tab tab" data-admin-tab="broadcast">Anuncios</button>
+        </div>
+
+        <div id="adminPaneResults" class="admin-pane">
+          <form id="resultForm" class="admin-form">
+            <label>Partido<select name="matchId" required></select></label>
+            <label>Goles local<input name="homeScore" type="number" min="0" max="30" required></label>
+            <label>Goles visitante<input name="awayScore" type="number" min="0" max="30" required></label>
+            <button type="submit">Guardar resultado</button>
+          </form>
+          <button id="syncBtn" class="ghost" type="button" style="margin-top:0.6rem">Probar sync API deportiva</button>
+          <p id="adminMessage" class="muted"></p>
+        </div>
+
+        <div id="adminPaneContent" class="admin-pane hidden">
+          <form id="settingsForm" class="form">
+            <label>📖 Reglas (se ven en el popup)
+              <textarea name="rules" rows="6" required></textarea>
+            </label>
+            <label>🏆 Premios (se ven en el popup)
+              <textarea name="prizes" rows="5" required></textarea>
+            </label>
+            <button type="submit">Guardar contenido</button>
+          </form>
+          <p id="settingsMessage" class="muted"></p>
+        </div>
+
+        <div id="adminPaneBets" class="admin-pane hidden">
+          <div class="section-title">
+            <h3 class="admin-h3">Todas las apuestas</h3>
+            <input id="betsFilter" placeholder="Filtrar por usuario o partido..." class="admin-filter">
+          </div>
+          <div class="bets-table-wrap">
+            <table class="bets-table">
+              <thead>
+                <tr><th>Usuario</th><th>Partido</th><th>Apuesta</th><th>Oficial</th><th>Pts</th><th></th></tr>
+              </thead>
+              <tbody id="betsTableBody"></tbody>
+            </table>
+          </div>
+          <p id="betsMessage" class="muted"></p>
+        </div>
+
+        <div id="adminPaneUsers" class="admin-pane hidden">
+          <h3 class="admin-h3">Gestión de usuarios</h3>
+          <div class="bets-table-wrap">
+            <table class="bets-table">
+              <thead>
+                <tr><th>Usuario</th><th>Apuestas</th><th>Rol</th><th>Acciones</th></tr>
+              </thead>
+              <tbody id="usersTableBody"></tbody>
+            </table>
+          </div>
+          <p id="usersMessage" class="muted"></p>
+        </div>
+
+        <div id="adminPaneBroadcast" class="admin-pane hidden">
+          <form id="announcementForm" class="form">
+            <label>📣 Mensaje destacado (banner para todos los jugadores)
+              <textarea name="announcement" rows="3" placeholder="Ej: ¡Gran final el sábado a las 21hs!"></textarea>
+            </label>
+            <p class="muted" style="font-size:0.78rem">Dejá vacío para ocultar el banner.</p>
+            <button type="submit">Publicar anuncio</button>
+          </form>
+          <p id="broadcastMessage" class="muted"></p>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <template id="matchTemplate">
+    <article class="match">
+      <div class="match-meta"></div>
+      <div class="teams">
+        <span class="team team-home"><img class="flag flag-home" alt="" aria-hidden="true"><strong class="home"></strong></span>
+        <span class="vs">vs</span>
+        <span class="team team-away"><strong class="away"></strong><img class="flag flag-away" alt="" aria-hidden="true"></span>
+      </div>
+      <div class="kickoff"></div>
+      <div class="venue muted"></div>
+      <form class="prediction-form">
+        <input name="homeScore" type="number" min="0" max="30" aria-label="Goles local">
+        <span>-</span>
+        <input name="awayScore" type="number" min="0" max="30" aria-label="Goles visitante">
+        <button type="submit">Apostar</button>
+      </form>
+      <div class="result"></div>
+    </article>
+  </template>
+
+  <div id="rulesModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="rulesModalTitle">
+    <div class="modal-backdrop" data-close="1"></div>
+    <div class="modal-card card">
+      <button class="modal-close" type="button" aria-label="Cerrar" data-close="1">×</button>
+      <p class="eyebrow">Cómo se juega</p>
+      <h2 id="rulesModalTitle">📖 Reglas</h2>
+      <pre id="rulesContent" class="modal-pre"></pre>
+      <h2 style="margin-top:1rem">🏆 Premios</h2>
+      <pre id="prizesContent" class="modal-pre"></pre>
+    </div>
+  </div>
+
+  <div id="pledgeModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="pledgeModalTitle">
+    <div class="modal-backdrop" data-close="1"></div>
+    <div class="modal-card">
+      <button class="modal-close" type="button" data-close="1" aria-label="Cerrar">✕</button>
+      <h2 id="pledgeModalTitle">🤝 Cargá tu promesa</h2>
+      <p class="muted">Ej: <em>Si gana Argentina, me rapo la cabeza.</em></p>
+      <form id="pledgeForm" class="form">
+        <label>
+          Condición
+          <input name="condition" type="text" maxlength="200" placeholder="Si gana Argentina..." required>
+        </label>
+        <label>
+          Promesa
+          <input name="promise" type="text" maxlength="280" placeholder="...me rapo la cabeza" required>
+        </label>
+        <p id="pledgeError" class="error" role="alert"></p>
+        <button type="submit">Publicar promesa</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="rankingTV" class="ranking-tv hidden" role="dialog" aria-modal="true">
+    <header class="rtv-header">
+      <div class="rtv-brand">
+        <p class="rtv-eyebrow">Vicejefatura · GCABA</p>
+        <h1 class="rtv-title">La Vice Mundial · Edición 2026</h1>
+      </div>
+      <div class="rtv-meta">
+        <span id="rtvPageInfo" class="rtv-page hidden"></span>
+        <span id="rtvSync" class="rtv-sync"></span>
+        <button id="rtvCloseBtn" class="rtv-close" type="button">✕ Salir</button>
+      </div>
+    </header>
+    <div id="rtvList" class="rtv-list"></div>
+    <footer class="rtv-footer">🏆 Ranking en vivo · La Vice Mundial 2026</footer>
+  </div>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>

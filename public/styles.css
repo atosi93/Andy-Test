@@ -1,0 +1,427 @@
+/* ================ Paleta inspirada en BA Joven / GCBA ================ */:root {  --yellow: #ffc72c;  --navy: #002b3d;  --navy-2: #013349;  --mint: #8fe3cc;  --white: #ffffff;  --ink: #002b3d;  --muted: #4f6473;  --line: #002b3d;  --red: #d62828;}* { box-sizing: border-box; }html, body { max-width: 100%; overflow-x: hidden; }body {  margin: 0;  min-height: 100vh;  font-family: "Bricolage Grotesque", "Inter", "Segoe UI", Arial, sans-serif;  font-weight: 600;  color: var(--ink);  background: var(--navy);}button, input, select { font: inherit; }/* ================ Topbar amarilla ================ */.topbar {  display: flex;  align-items: center;  justify-content: space-between;  gap: 0.7rem;  padding: 1rem min(4vw, 1.5rem);  background: var(--yellow);  border-bottom: 3px solid var(--ink);}.brand { line-height: 1; }.brand .eyebrow {  margin: 0;  font-family: "Archivo Black", sans-serif;  font-size: 0.78rem;  color: var(--ink);  letter-spacing: 0.02em;}.brand-title {  margin: 0.15rem 0 0.3rem;  font-family: "Archivo Black", sans-serif;  font-weight: 900;  font-size: clamp(1.8rem, 5.5vw, 3rem);  line-height: 0.95;  letter-spacing: -0.01em;  color: var(--ink);}.brand-fun, .brand-fun-alt { display: inline; transform: none; }.brand-sub {  margin: 0;  font-family: "Archivo Black", sans-serif;  font-size: clamp(0.7rem, 1.8vw, 0.95rem);  letter-spacing: 0.04em;  color: var(--ink);  font-weight: 700;}/* Logo BA-style speech bubble en la esquina */.brand-badge {  display: inline-flex;  align-items: center;  gap: 0.35rem;  padding: 0.5rem 0.9rem;  background: var(--yellow);  border: 2.5px solid var(--ink);  font-family: "Archivo Black", sans-serif;  font-size: 0.95rem;  color: var(--ink);  position: relative;}.brand-badge::after {  content: "";  position: absolute;  bottom: -10px;  right: 16px;  width: 12px;  height: 12px;  background: var(--yellow);  border-right: 2.5px solid var(--ink);  border-bottom: 2.5px solid var(--ink);  transform: rotate(45deg);}/* ================ Layout ================ */main {  width: min(1280px, calc(100vw - 1rem));  margin: 1rem auto 2rem;}.eyebrow {  margin: 0 0 0.35rem;  color: var(--yellow);  font-family: "Archivo Black", sans-serif;  font-size: 0.72rem;  text-transform: uppercase;  letter-spacing: 0.15em;}h2 {  margin: 0 0 0.4rem;  font-family: "Archivo Black", sans-serif;  font-size: clamp(1.1rem, 2.6vw, 1.55rem);  letter-spacing: -0.01em;  color: var(--ink);}.muted { color: var(--muted); }.hidden { display: none !important; }.error {  margin: 0;  min-height: 1.2rem;  color: var(--red);  font-weight: 800;}/* ================ Cards (rectos) ================ */.card {  border: 2.5px solid var(--ink);  border-radius: 0;  padding: clamp(0.85rem, 2vw, 1.25rem);  background: var(--white);  box-shadow: 6px 6px 0 var(--ink);  margin-bottom: 1rem;}.card .eyebrow { color: var(--ink); }.auth-card {  display: grid;  gap: 1rem;  max-width: 480px;  margin: 2rem auto;  background: var(--mint);}/* ================ Botones ================ */button {  border: 2.5px solid var(--ink);  border-radius: 0;  padding: 0.7rem 1.1rem;  color: var(--ink);  background: var(--yellow);  font-family: "Archivo Black", sans-serif;  font-size: 0.85rem;  cursor: pointer;  text-transform: uppercase;  letter-spacing: 0.04em;  transition: transform 0.05s ease;}button:hover:not(:disabled) {  transform: translate(-2px, -2px);  box-shadow: 3px 3px 0 var(--ink);}button:active:not(:disabled) {  transform: translate(0, 0);  box-shadow: none;}button:disabled {  cursor: not-allowed;  background: #ddd;  color: #888;  border-color: #888;}.ghost {  background: var(--white);}/* ================ Tabs ================ */.tabs {  display: grid;  grid-template-columns: 1fr 1fr;  border: 2.5px solid var(--ink);}.tab {  border: 0;  border-radius: 0;  background: var(--white);  color: var(--ink);  padding: 0.65rem;  box-shadow: none;}.tab + .tab { border-left: 2.5px solid var(--ink); }.tab:hover:not(:disabled) { transform: none; box-shadow: none; }.tab.active { background: var(--yellow); }/* ================ Inputs ================ */.form, .admin-form {  display: grid;  gap: 0.85rem;}label {  display: grid;  gap: 0.3rem;  color: var(--ink);  font-size: 0.85rem;  font-weight: 800;  text-transform: uppercase;  letter-spacing: 0.04em;}input, select {  width: 100%;  border: 2.5px solid var(--ink);  border-radius: 0;  padding: 0.7rem 0.85rem;  outline: none;  color: var(--ink);  background: var(--white);  font-family: inherit;  font-weight: 600;}input:focus, select:focus {  background: var(--yellow);}select option { color: #111; }/* ================ Hero ================ */.hero {  display: flex;  align-items: stretch;  justify-content: space-between;  flex-wrap: wrap;  gap: 0.7rem;  background: var(--mint);}.hero > div:first-child { flex: 1 1 250px; }.stats {  display: grid;  grid-template-columns: repeat(3, minmax(70px, 1fr));  gap: 0.5rem;  flex: 1 1 280px;}.stats div {  padding: 0.65rem 0.5rem;  border: 2.5px solid var(--ink);  background: var(--yellow);  text-align: center;}.stats strong {  display: block;  font-family: "Archivo Black", sans-serif;  font-size: 1.5rem;  line-height: 1.1;  color: var(--ink);}.stats span {  display: block;  margin-top: 0.15rem;  color: var(--ink);  font-size: 0.65rem;  font-weight: 800;  text-transform: uppercase;  letter-spacing: 0.06em;}/* ================ Grid principal ================ */.grid {  display: grid;  grid-template-columns: minmax(0, 1fr);  gap: 1rem;}.grid > aside.card { order: 2; }.fixtures-area {  display: grid;  gap: 1rem;  min-width: 0;}.section-title {  display: flex;  align-items: center;  justify-content: space-between;  flex-wrap: wrap;  gap: 0.6rem;  margin-bottom: 0.7rem;}.matches { display: grid; gap: 0.5rem; }/* ================ Group picker ================ */.group-picker {  display: inline-flex;  align-items: center;  gap: 0.55rem;  font-family: "Archivo Black", sans-serif;  font-size: 0.7rem;  color: var(--ink);  text-transform: uppercase;  letter-spacing: 0.08em;}.group-picker select {  padding: 0.45rem 0.75rem;  width: auto;  background: var(--yellow);  font-family: "Archivo Black", sans-serif;}/* ================ Group cards ================ */.groups-grid {  display: grid;  grid-template-columns: minmax(0, 1fr);  gap: 0.75rem;}.group-card {  display: grid;  gap: 0.65rem;  padding: 0.85rem;  border: 2.5px solid var(--ink);  background: var(--mint);}.group-card h3,.bracket-column h3 {  margin: 0;  color: var(--ink);  font-family: "Archivo Black", sans-serif;  font-size: 0.95rem;  letter-spacing: 0.02em;  text-transform: uppercase;}.group-matches {  display: grid;  grid-template-columns: repeat(3, minmax(0, 1fr));  gap: 0.55rem;}@media (max-width: 720px) {  .group-matches { grid-template-columns: repeat(2, minmax(0, 1fr)); }}@media (max-width: 460px) {  .group-matches { grid-template-columns: minmax(0, 1fr); }}/* ================ Match cards ================ */.match {  display: grid;  gap: 0.5rem;  padding: 0.75rem;  border: 2.5px solid var(--ink);  background: var(--white);}.match-compact {  gap: 0.45rem;  padding: 0.6rem;}.match-compact .match-meta { display: none; }.match-meta {  color: var(--ink);  font-family: "Archivo Black", sans-serif;  font-size: 0.68rem;  text-transform: uppercase;  letter-spacing: 0.06em;}.teams {  display: grid;  grid-template-columns: 1fr auto 1fr;  align-items: center;  gap: 0.5rem;  font-size: 0.95rem;  font-weight: 800;}.team {  display: inline-flex;  align-items: center;  gap: 0.45rem;  min-width: 0;}.team-home { justify-content: flex-start; }.team-away { justify-content: flex-end; }.team strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; }.flag {  width: 24px;  height: 18px;  border: 1.5px solid var(--ink);  object-fit: cover;  flex-shrink: 0;}.match-compact .flag,.match-bracket .flag { width: 20px; height: 15px; }.vs { color: var(--muted); font-size: 0.85rem; font-weight: 900; }.kickoff, .result, .venue {  color: var(--muted);  font-size: 0.78rem;  font-weight: 600;}.match-compact .kickoff,.match-bracket .kickoff,.match-compact .venue,.match-compact .result,.match-bracket .result {  font-size: 0.7rem;}/* Pronósticos */.prediction-form {  display: grid;  grid-template-columns: 50px 1fr 50px auto;  align-items: center;  gap: 0.45rem;}.prediction-form input { text-align: center; padding: 0.45rem; }.prediction-form span {  color: var(--ink);  font-weight: 900;  text-align: center;}.prediction-form button {  padding: 0.5rem 0.85rem;  font-size: 0.78rem;}.match-compact .prediction-form,.match-bracket .prediction-form {  grid-template-columns: 38px auto 38px;  gap: 0.3rem;}.match-compact .prediction-form button,.match-bracket .prediction-form button {  grid-column: 1 / -1;  padding: 0.42rem;  font-size: 0.7rem;}.match-compact input,.match-bracket input { padding: 0.35rem; font-size: 0.85rem; }/* ================ Bracket ================ */.bracket {  display: grid;  grid-template-columns: repeat(9, minmax(0, 1fr));  gap: 0.4rem;  align-items: center;  padding: 0.3rem 0 0.6rem;  width: 100%;}.bracket-column {  display: grid;  gap: 0.5rem;  min-width: 0;  position: relative;}.bracket-column::after { display: none; }.bracket-stack {  display: grid;  gap: 0.45rem;}.bracket-final h3 { color: var(--ink); }.match-bracket {  padding: 0.4rem;  background: var(--white);}.match-bracket .match-meta {  color: var(--ink);  font-size: 0.6rem;}.match-bracket .teams {  grid-template-columns: minmax(0, 1fr);  gap: 0.15rem;  font-size: 0.7rem;  line-height: 1.05;}.match-bracket .team { justify-content: flex-start; gap: 0.2rem; }.match-bracket .team-away { flex-direction: row-reverse; }.match-bracket .vs,.match-bracket .kickoff,.match-bracket .venue,.match-bracket .result { display: none; }.match-bracket .prediction-form { grid-template-columns: 1fr 1fr; }.match-bracket .prediction-form span { display: none; }.bracket-empty {  display: grid;  min-height: 70px;  place-items: center;  border: 2.5px dashed var(--ink);  color: var(--ink);  background: transparent;  font-family: "Archivo Black", sans-serif;  font-size: 0.7rem;}.bracket-final .match {  background: var(--yellow);}.bracket-third-title {  margin: 0.4rem 0 0;  font-family: "Archivo Black", sans-serif;  font-size: 0.65rem;  text-transform: uppercase;  text-align: center;  color: var(--ink);}@media (max-width: 900px) {  .bracket { grid-template-columns: repeat(3, minmax(0, 1fr)); }}@media (max-width: 540px) {  .bracket { grid-template-columns: repeat(2, minmax(0, 1fr)); }}/* ================ Ranking ================ */.ranking { display: grid; gap: 0.45rem; }.rank-row {  display: grid;  grid-template-columns: 32px 1fr auto;  align-items: center;  gap: 0.6rem;  padding: 0.6rem 0.7rem;  border: 2.5px solid var(--ink);  background: var(--white);  font-size: 0.88rem;  font-weight: 700;}.rank-row:nth-child(1) { background: var(--yellow); }.rank-row:nth-child(2) { background: var(--mint); }.rank-row .pos {  display: grid;  place-items: center;  width: 28px;  height: 28px;  border: 2.5px solid var(--ink);  background: var(--white);  font-family: "Archivo Black", sans-serif;  font-size: 0.85rem;  color: var(--ink);}.rank-row small {  display: block;  color: var(--muted);  font-size: 0.7rem;}.rank-row strong:last-child {  font-family: "Archivo Black", sans-serif;  color: var(--ink);}/* ================ Admin ================ */#adminPanel { margin-top: 1rem; }.admin-form {  grid-template-columns: 1fr 130px 130px auto;  align-items: end;}@media (max-width: 720px) {  .admin-form { grid-template-columns: 1fr; }}.all-matches-card { margin-top: 1rem; }summary {  cursor: pointer;  color: var(--ink);  font-family: "Archivo Black", sans-serif;  text-transform: uppercase;  font-size: 0.85rem;}/* ================ Mobile ajustes finales ================ */
+@media (max-width: 720px) {
+  .topbar { padding: 0.7rem 0.7rem; }
+  .card { padding: 0.7rem; box-shadow: 4px 4px 0 var(--ink); }
+  .stats { grid-template-columns: repeat(3, 1fr); gap: 0.35rem; }
+  .stats div { padding: 0.5rem 0.3rem; }
+  .stats strong { font-size: 1.15rem; }
+  .stats span { font-size: 0.55rem; }
+  .hero { gap: 0.55rem; }
+  .teams { font-size: 0.85rem; }
+  .prediction-form { grid-template-columns: 42px 1fr 42px; }
+  .prediction-form button { grid-column: 1 / -1; padding: 0.45rem; font-size: 0.75rem; }
+}
+
+/* ============== Rules button ============== */
+.rules-btn { margin-top: 0.5rem; padding: 0.55rem 0.9rem; font-size: 0.78rem; }
+
+/* ============== Announcement banner ============== */
+.announcement {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--yellow);
+  border: 2.5px solid var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+  font-family: "Archivo Black", sans-serif;
+  font-size: 0.92rem;
+  color: var(--ink);
+  white-space: pre-wrap;
+}
+.announcement.hidden { display: none !important; }
+
+/* ============== Modal ============== */
+.modal { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 1rem; }
+.modal.hidden { display: none !important; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(0,43,61,0.78); cursor: pointer; }
+.modal-card {
+  position: relative; z-index: 1; max-width: 540px; width: 100%;
+  max-height: 85vh; overflow-y: auto; margin: 0; background: var(--white);
+}
+.modal-close {
+  position: absolute; top: 0.5rem; right: 0.5rem;
+  width: 36px; height: 36px; padding: 0;
+  font-size: 1.1rem; line-height: 1; background: var(--yellow);
+}
+.modal-pre {
+  margin: 0.4rem 0 0; padding: 0.7rem;
+  background: var(--mint); border: 2px solid var(--ink);
+  font-family: inherit; font-size: 0.88rem; font-weight: 600;
+  white-space: pre-wrap; word-break: break-word; color: var(--ink);
+}
+
+/* ============== Admin tabs & panes ============== */
+.admin-tabs {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  border: 2.5px solid var(--ink); margin-bottom: 0.8rem;
+}
+.admin-tabs .tab { font-size: 0.65rem; padding: 0.55rem 0.3rem; white-space: nowrap; }
+.admin-tab + .admin-tab { border-left: 2.5px solid var(--ink); }
+.admin-pane { margin-top: 0.4rem; }
+.admin-pane.hidden { display: none; }
+.admin-h3 {
+  margin: 0; font-family: "Archivo Black", sans-serif;
+  font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.admin-filter { max-width: 280px; padding: 0.45rem 0.65rem; font-size: 0.85rem; }
+
+@media (max-width: 720px) {
+  .admin-tabs { grid-template-columns: repeat(2, 1fr); }
+  .admin-tab + .admin-tab { border-left: 2.5px solid var(--ink); }
+  .admin-tab:nth-child(odd) + .admin-tab { border-left: 2.5px solid var(--ink); }
+}
+
+/* ============== Textarea ============== */
+textarea {
+  width: 100%; border: 2.5px solid var(--ink); border-radius: 0;
+  padding: 0.7rem; outline: none; color: var(--ink); background: var(--white);
+  font-family: inherit; font-weight: 600; resize: vertical;
+}
+textarea:focus { background: var(--yellow); }
+
+/* ============== Bets / Users tables ============== */
+.bets-table-wrap { overflow-x: auto; border: 2.5px solid var(--ink); margin-top: 0.4rem; }
+.bets-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.bets-table th {
+  background: var(--yellow); text-align: left; padding: 0.55rem 0.6rem;
+  border-bottom: 2.5px solid var(--ink);
+  font-family: "Archivo Black", sans-serif; font-size: 0.68rem;
+  text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;
+}
+.bets-table td {
+  padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--ink); vertical-align: middle;
+}
+.bets-table tr:last-child td { border-bottom: 0; }
+.bets-table tr:nth-child(even) td { background: #f7faf9; }
+
+.btn-sm {
+  padding: 0.35rem 0.55rem; font-size: 0.65rem; box-shadow: none;
+}
+.btn-sm.danger { background: #ffe1e1; }
+.user-actions { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+
+/* ============== Logo mundial - marca de agua eliminatorias ============== */
+.bracket-card { position: relative; overflow: hidden; }
+.bracket-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("logo-mundial.svg");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: min(98%, 880px) auto;
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 0;
+}
+.bracket-card > * { position: relative; z-index: 1; }
+
+/* ============== Ranking header & TV view ============== */
+.ranking-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 0.5rem; margin-bottom: 0.4rem;
+}
+.ranking-header h2 { margin: 0; }
+
+/* ============== Ranking TV (vista pantalla completa) - clean ============== */
+.ranking-tv {
+  position: fixed; inset: 0; z-index: 5000;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--navy);
+  color: var(--white);
+  font-family: "Archivo Black", "Bricolage Grotesque", sans-serif;
+  overflow: hidden;
+}
+.ranking-tv.hidden { display: none !important; }
+
+.rtv-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1.5vw; padding: 1.2vw 2vw;
+  background: var(--yellow); color: var(--ink);
+  border-bottom: 5px solid var(--ink);
+}
+.rtv-brand { display: flex; flex-direction: column; line-height: 1; }
+.rtv-eyebrow {
+  margin: 0; font-size: 0.7vw; letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.7;
+}
+.rtv-title {
+  margin: 0.25vw 0 0; font-size: 1.5vw; line-height: 1;
+  letter-spacing: -0.01em;
+}
+.rtv-meta { display: flex; align-items: center; gap: 1vw; }
+.rtv-sync {
+  font-size: 0.75vw; padding: 0.4vw 0.8vw;
+  background: var(--white); border: 3px solid var(--ink);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.rtv-close {
+  font-family: inherit; font-size: 0.8vw; padding: 0.45vw 1vw;
+  background: var(--white); color: var(--ink);
+  border: 3px solid var(--ink); cursor: pointer;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.rtv-close:hover { background: var(--mint); }
+
+.rtv-list {
+  --rows: 5;
+  --cols: 4;
+  --cell-h: calc((100vh - 14vh) / var(--rows));
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
+  grid-auto-flow: column;
+  gap: 1vw;
+  padding: 1.2vw 2vw;
+  min-height: 0;
+  background-image: url("logo-mundial.svg");
+  background-repeat: no-repeat;
+  background-position: right -8vw center;
+  background-size: auto 65vh;
+}
+
+.rtv-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1vw;
+  padding: 0.5vw 0.9vw;
+  background: #c9eedd;
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  min-width: 0; min-height: 0;
+  overflow: hidden;
+}
+.rtv-card.is-first { background: #ffd700; }
+.rtv-card.is-second { background: #d6dbe0; }
+.rtv-card.is-third { background: #cd7f32; }
+
+.rtv-pos {
+  display: grid; place-items: center;
+  width: calc(var(--cell-h) * 0.34); height: calc(var(--cell-h) * 0.34);
+  background: var(--white);
+  border: 2px solid var(--ink);
+  font-size: calc(var(--cell-h) * 0.18); line-height: 1; flex-shrink: 0;
+}
+
+.rtv-name {
+  display: flex; flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  line-height: 1.05;
+}
+.rtv-name strong {
+  font-size: calc(var(--cell-h) * 0.15);
+  display: block;
+  word-break: break-word;
+  hyphens: auto;
+}
+.rtv-name small {
+  margin-top: 0.3vw;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: calc(var(--cell-h) * 0.085);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.rtv-points {
+  background: var(--ink);
+  color: var(--yellow);
+  padding: 0.35vw 0.8vw;
+  border: 2px solid var(--ink);
+  font-size: calc(var(--cell-h) * 0.22);
+  line-height: 1;
+  display: flex; align-items: baseline; gap: 0.3vw;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.rtv-points small { font-size: 0.4em; opacity: 0.75; }
+
+.rtv-footer {
+  background: var(--ink); color: var(--yellow);
+  padding: 0.6vw 2vw; font-size: 0.75vw; text-align: center;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  border-top: 5px solid var(--yellow);
+}
+
+.rtv-empty {
+  grid-column: 1 / -1; grid-row: 1 / -1;
+  align-self: center; justify-self: center;
+  background: var(--white); color: var(--ink);
+  padding: 3vw 4vw; border: 4px solid var(--ink);
+  box-shadow: 8px 8px 0 var(--yellow);
+  font-size: 2vw; text-align: center;
+}
+
+/* ============== Stats centering fix ============== */
+.stats div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============== Pledges (promesas) ============== */
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.pledges-card { background: var(--mint); }
+.pledges-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+.pledge-item {
+  position: relative;
+  padding: 0.7rem 2.2rem 0.7rem 0.8rem;
+  background: var(--white);
+  border: 2.5px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.pledge-author {
+  font-family: "Archivo Black", sans-serif;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  margin-bottom: 0.25rem;
+}
+.pledge-text {
+  font-size: 0.9rem;
+  line-height: 1.25;
+  color: var(--ink);
+}
+.pledge-delete {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  padding: 0.15rem 0.4rem;
+  font-size: 0.7rem;
+  background: var(--white);
+}
+.pledges-empty {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+/* ============== Modal pledge override ============== */
+#pledgeModal .modal-card {
+  max-width: 720px;
+  padding: 1.5rem 1.6rem;
+  border: 3px solid var(--ink);
+  box-shadow: 8px 8px 0 var(--ink);
+}
+#pledgeModal .modal-card h2 { margin: 0 0 0.6rem; }
+#pledgeModal .form { gap: 1rem; }
+#pledgeModal input { padding: 0.85rem 0.9rem; font-size: 1rem; }
+/* ============== Highlight current user in ranking ============== */
+.rank-row-me {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+  background: var(--yellow) !important;
+  position: relative;
+}
+.rank-tag {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.4rem;
+  background: var(--ink);
+  color: var(--yellow);
+  font-family: "Archivo Black", sans-serif;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 2px solid var(--ink);
+}
+
+.rtv-card.is-me {
+  outline: 4px solid var(--yellow);
+  outline-offset: 3px;
+  z-index: 1;
+}
+.rtv-card.is-me.is-first { outline-color: var(--ink); }
+
+/* ============== Pledges toggle ============== */
+.pledges-toggle {
+  margin-top: 0.6rem;
+  width: 100%;
+  font-size: 0.75rem;
+}
+
+/* ============== Group view toggle ============== */
+.group-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem;
+}
+.view-toggle {
+  display: inline-flex;
+  border: 2.5px solid var(--ink);
+}
+.view-toggle-btn {
+  border: 0;
+  background: var(--white);
+  color: var(--ink);
+  padding: 0.45rem 0.85rem;
+  font-family: "Archivo Black", sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+}
+.view-toggle-btn + .view-toggle-btn { border-left: 2.5px solid var(--ink); }
+.view-toggle-btn.active { background: var(--yellow); }
+.view-toggle-btn:hover:not(.active) { background: var(--mint); }
+
+/* ============== Bracket hover tooltip ============== */
+.match-bracket { position: relative; cursor: help; }
+.match-bracket[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--yellow);
+  padding: 0.4rem 0.65rem;
+  border: 2px solid var(--ink);
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  z-index: 50;
+  box-shadow: 3px 3px 0 var(--yellow);
+  pointer-events: none;
+}
+.match-bracket[data-tooltip]:hover::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0px);
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--ink);
+  z-index: 50;
+}
+
+/* ============== TV page indicator ============== */
+.rtv-page {
+  font-family: "Archivo Black", sans-serif;
+  font-size: 0.9vw;
+  padding: 0.4vw 0.9vw;
+  background: var(--ink);
+  color: var(--yellow);
+  border: 3px solid var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.rtv-page.hidden { display: none; }
